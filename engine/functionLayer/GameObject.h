@@ -1,5 +1,4 @@
 #pragma once
-#include<unordered_map>
 #include<vector>
 #include<string>
 namespace runtime
@@ -15,13 +14,13 @@ namespace runtime
 		{
 			//这里涉及到反射,从类实例里面得到类的名字
 			T* cop = new T();
-			
+			components.push_back(cop);
 		}
 		
 
 	private:
 		std::string _name;
-		std::unordered_map<std::string, std::vector<Component*>> ComponentMap;
+		std::vector<Component*> components;
 	};
 
 

@@ -129,11 +129,17 @@
   <ItemGroup>
     <ClCompile Include="functionLayer\Component.cpp" />
     <ClCompile Include="functionLayer\GameObject.cpp" />
+    <ClCompile Include="functionLayer\MeshComponent.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ResourceLayer\Model.cpp" />
+    <ClCompile Include="ResourceLayer\shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="functionLayer\Component.h" />
     <ClInclude Include="functionLayer\GameObject.h" />
+    <ClInclude Include="functionLayer\MeshComponent.h" />
+    <ClInclude Include="ResourceLayer\Model.h" />
+    <ClInclude Include="ResourceLayer\shader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
