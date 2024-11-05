@@ -1,12 +1,9 @@
-#include"Mesh.h"
+#include"MeshComponent.h"
 
-void runtime::MeshComponent::render()
+void MeshComponent::render()
 {
 }
 
-void runtime::MeshComponent::LoadModel(const std::string& path)
+void MeshComponent::LoadModel(const std::string& path)
 {
-	//从路径中读取数据
 }
-
-

@@ -1,7 +1,6 @@
 #pragma once
 #include<string>
-namespace runtime
-{
+
 	class GameObject;
 	class Component
 	{
@@ -17,5 +16,5 @@ namespace runtime
 	};
 
 
-}
+
 

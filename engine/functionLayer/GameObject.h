@@ -1,8 +1,7 @@
 #pragma once
 #include<vector>
 #include<string>
-namespace runtime
-{
+
 	class Component;
 	class GameObject
 	{
@@ -29,4 +28,3 @@ namespace runtime
 		//GO的id，用来识别不同的go
 	};
 
-}

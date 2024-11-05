@@ -30,7 +30,15 @@ UV坐标中，原点在左下角，在read file时可以使用aiProcess_FlipUVs 
 
 Assimp中的Mesh存储在一个数组中。一个aiMesh由一系列的数据组成，其中保证存在的只有mVertices和mFaces.
 
+所有的mesh实体保存在Scene的mesh中，而所有的node中的mMeshes数组仅仅只保留对应的mesh在Scene的Mesh中的index。
+
 在代码中构造一个类来对应这个aiMesh.
 
 在read file的时候通过指定flag也可以计算出其中的一些值。
+
+#### Vertex
+
+mesh中的值存储在vertex类中，包含位置、法线、纹理坐标等。
+
+### Texture
 

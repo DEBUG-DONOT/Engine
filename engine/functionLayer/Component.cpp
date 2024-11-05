@@ -1,5 +1,5 @@
 #include "Component.h"
 
-void runtime::Component::tick()
+void Component::tick()
 {
 }
