@@ -127,20 +127,27 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="functionLayer\Camera.cpp" />
     <ClCompile Include="functionLayer\Component.cpp" />
     <ClCompile Include="functionLayer\GameObject.cpp" />
+    <ClCompile Include="functionLayer\Init.cpp" />
     <ClCompile Include="functionLayer\MeshComponent.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="ResourceLayer\Mesh.cpp" />
-    <ClCompile Include="ResourceLayer\Model.cpp" />
+    <ClCompile Include="ResourceLayer\mesh.cpp" />
+    <ClCompile Include="ResourceLayer\model.cpp" />
     <ClCompile Include="ResourceLayer\shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="functionLayer\Camera.h" />
     <ClInclude Include="functionLayer\Component.h" />
+    <ClInclude Include="functionLayer\FunctionLayer.h" />
     <ClInclude Include="functionLayer\GameObject.h" />
+    <ClInclude Include="functionLayer\Init.h" />
     <ClInclude Include="functionLayer\MeshComponent.h" />
-    <ClInclude Include="ResourceLayer\Mesh.h" />
-    <ClInclude Include="ResourceLayer\Model.h" />
+    <ClInclude Include="functionLayer\Render.h" />
+    <ClInclude Include="ResourceLayer\mesh.h" />
+    <ClInclude Include="ResourceLayer\model.h" />
+    <ClInclude Include="ResourceLayer\ResourceLayer.h" />
     <ClInclude Include="ResourceLayer\shader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

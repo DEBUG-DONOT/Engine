@@ -1,3 +1,11 @@
+# 结构
+
+![image-20241110232323742](C:\Users\87784\AppData\Roaming\Typora\typora-user-images\image-20241110232323742.png)
+
+其中平台层不进行处理，核
+
+
+
 # FunctionLayer
 
 ## gameObject和component
@@ -15,6 +23,8 @@
 # ResourceLayer
 
 ## Model
+
+理想情况下肯定是直接对model调用draw操作就可以让它在屏幕上画出来。
 
 使用Assimp来加载模型。
 

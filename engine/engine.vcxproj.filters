@@ -27,13 +27,19 @@
     <ClCompile Include="functionLayer\MeshComponent.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="ResourceLayer\Model.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="ResourceLayer\shader.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="ResourceLayer\Mesh.cpp">
+    <ClCompile Include="ResourceLayer\mesh.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceLayer\model.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="functionLayer\Init.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="functionLayer\Camera.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -47,13 +53,28 @@
     <ClInclude Include="functionLayer\MeshComponent.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ResourceLayer\Model.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="ResourceLayer\shader.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ResourceLayer\Mesh.h">
+    <ClInclude Include="ResourceLayer\mesh.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceLayer\model.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="functionLayer\Init.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceLayer\ResourceLayer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="functionLayer\Camera.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="functionLayer\Render.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="functionLayer\FunctionLayer.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,46 +1,61 @@
-#pragma once
+#ifndef MESH_H
+#define MESH_H
+
+#include <glad/glad.h>
 #include <glm/glm.hpp>
-#include<vector>
+#include <string>
+#include <vector>
+#include"shader.h"
 #define MAX_BONE_INFLUENCE 4
 
-/*
-* Ò»¸övertexÊÇÒ»¸öper vertex µÄdataµÄ¼¯ºÏ
-*/
-class Vertex
-{
-public:
-	// position
-	glm::vec3 Position;
-	// normal
-	glm::vec3 Normal;
-	// texCoords
-	glm::vec2 TexCoords;
-	// tangent
-	glm::vec3 Tangent;
-	// bitangent
-	glm::vec3 Bitangent;
+using namespace std;
+
+struct Vertex {
+    // position
+    glm::vec3 Position;
+    // normal
+    glm::vec3 Normal;
+    // texCoords
+    glm::vec2 TexCoords;
+    // tangent
+    glm::vec3 Tangent;
+    // bitangent
+    glm::vec3 Bitangent;
 	//bone indexes which will influence this vertex
 	int m_BoneIDs[MAX_BONE_INFLUENCE];
 	//weights from each bone
 	float m_Weights[MAX_BONE_INFLUENCE];
 };
 
-/*
-* MeshÊÕÂ¼ÁËÒ»¸ömeshÉÏµÄËùÓĞvertexÊı¾İ
-*/
-
-class Mesh
-{
-public:
-	std::vector<Vertex> _vertexs;
-	std::vector<unsigned int> _indexs;
-
-
+struct Texture {
+    unsigned int id;
+    string type;
+    string path;    // æˆ‘ä»¬å‚¨å­˜çº¹ç†çš„è·¯å¾„ç”¨äºä¸å…¶å®ƒçº¹ç†è¿›è¡Œæ¯”è¾ƒ
+    bool operator==(const Texture& other) const {
+        return id == other.id && type == other.type && path == other.path;
+    }
 };
 
+class Mesh {
+    public:
+        /*  ç½‘æ ¼æ•°æ®  */
+        vector<Vertex> vertices;
+        vector<unsigned int> indices;
+        vector<Texture> textures;
+        unsigned int VAO;
+        /*  å‡½æ•°  */
+        //å®¹å™¨å†…çš„ç±»å¿…é¡»æœ‰é»˜è®¤æ„é€ å‡½æ•°
+        Mesh() = default;
+        Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures);
+        
+        void Draw(Shader& shader);
+        void Draw(GLuint shader);
+        void DrawPBR(Shader& shader);
+    private:
+        /*  æ¸²æŸ“æ•°æ®  */
+        unsigned int VBO, EBO;
+        /*  å‡½æ•°  */
+        void setupMesh();
+};  
 
-class Texture
-{
-
-
-};
+#endif
