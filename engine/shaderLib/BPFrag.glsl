@@ -38,7 +38,7 @@ vec3 BlinnPhong()
 	//vec3 reflectDir=reflect(-lightDir,normal_);phong
 	vec3 halfDir=normalize(viewDir+lightDir);
 	float specNum=pow(max(dot(halfDir,normal_),0.0),32);
-	vec3 specular=specStrength*texture(texture_specular1,nTexCoord).rgb;
+	vec3 specular=specNum*specStrength*texture(texture_specular1,nTexCoord).rgb;
 
 	return diffuse+ambint+specular;
 

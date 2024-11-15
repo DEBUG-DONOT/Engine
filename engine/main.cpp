@@ -28,7 +28,7 @@ int main()
 		shader.UpLoadUniformMat4("MVP", camera.GetMVP());
 		shader.UpLoadUniformMat4("model", glm::mat4(1.0));
 		shader.UpLoadUniformFloat3("lightPos", glm::vec3(0, 10, 30));
-		shader.UpLoadUniformFloat3("viewPos", camera.GetPosition());
+		shader.UpLoadUniformFloat3("viewPos", glm::vec3(0, 10, 30));
 		model.Draw(shader);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
