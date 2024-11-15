@@ -78,4 +78,8 @@
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="shaderLib\BPFrag.glsl" />
+    <None Include="shaderLib\BPVertex.glsl" />
+  </ItemGroup>
 </Project>

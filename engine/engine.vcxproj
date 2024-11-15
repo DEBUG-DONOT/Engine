@@ -150,6 +150,10 @@
     <ClInclude Include="ResourceLayer\ResourceLayer.h" />
     <ClInclude Include="ResourceLayer\shader.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="shaderLib\BPFrag.glsl" />
+    <None Include="shaderLib\BPVertex.glsl" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

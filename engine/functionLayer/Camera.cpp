@@ -4,18 +4,18 @@
 Camera::Camera(glm::vec3 position, glm::vec3 lookAt, glm::vec3 up)
 	:_position(position),_lookAt(lookAt),_up(up)
 {
-	this->view = glm::lookAt(_position, _lookAt, _up);
-	this->model = glm::mat4(1.0);
-	this->projection = glm::perspective(fov, aspect, near, far);
 	cameraFront = glm::normalize(_lookAt - _position);
 	cameraUp = glm::normalize(up);
 	cameraRight = glm::normalize(glm::cross(cameraFront, cameraUp));
+	this->model = glm::mat4(1.0);
+	this->view = glm::lookAt(_position, cameraFront, cameraUp);
+	this->projection = glm::perspective(fov, aspect, near, far);
 }
 Camera* Camera::MainCamera = nullptr;
 float Camera::speed = 1.0;
 void Camera::CameraKeyDetection(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	//记得取逆
+	//view矩阵应用到物体上。View=Rotate*Translate,我们这里只修改其中的translate部分。对于translate来说，就是把模型移动到相机位置，所以这里方向都取负
 	glm::vec3 transDir;
 	if (key == GLFW_KEY_W&&action==GLFW_PRESS)
 	{
@@ -54,6 +54,11 @@ void Camera::CameraKeyDetection(GLFWwindow* window, int key, int scancode, int a
 		transDir = glm::vec3(0, 0, 0) * Camera::speed;
 	}
 	MainCamera->SetView(glm::translate(MainCamera->view, transDir));
+}
+
+inline void Camera::SetView(glm::mat4 new_view)
+{
+	this->view = new_view;
 }
 
 void Camera::CameraMouseDetection()

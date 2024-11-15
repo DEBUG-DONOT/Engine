@@ -5,7 +5,6 @@ layout(location=2) in vec2 texCoord;
 out vec3 nNormal;
 out vec2 nTexCoord;
 out vec3 FragPos;
-
 uniform mat4 MVP;
 uniform mat4 model;
 void main()

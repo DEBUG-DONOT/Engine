@@ -21,6 +21,9 @@ void Initialization::GLFWInitialization(int width, int high, const char* name)
         std::cout << "Failed to initialize GLAD" << std::endl;
     }
     glViewport(0, 0, 1600, 900);
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
 
 }
 

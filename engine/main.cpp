@@ -3,8 +3,6 @@
 #include"./functionLayer/FunctionLayer.h"
 #include"./ResourceLayer/ResourceLayer.h"
 
-
-
 int main()
 {
 	Initialization initializer;
@@ -22,6 +20,7 @@ int main()
 	{
 		//fixed time physical loop
 		//render loop	
+		//背面的东西穿透到正面来了,结果是忘记开深度测试了
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		shader.Bind();

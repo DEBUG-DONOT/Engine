@@ -9,14 +9,14 @@ public:
 	inline glm::mat4 GetProjection() { return projection; }
 	inline glm::mat4 GetMVP() { return projection* view * model; }
 	inline glm::vec3 GetPosition() { return _position; }
-	inline void SetView(glm::mat4 new_view) { this->view = new_view; }
+	inline void SetView(glm::mat4 new_view);
 
 	void CameraMouseDetection();
 	static void CameraKeyDetection(GLFWwindow* window,int key,int scancode,int action,int mods);
 	static void SetMainCamera(Camera* cam) { MainCamera = cam; }
 private:
 	static Camera* MainCamera;
-	float aspect = 16.0 / 9.0, fov = glm::radians(45.0), near = 0.1, far = 100;
+	float aspect = 16.0 / 9.0, fov = glm::radians(45.0), near = 0.1, far = 100.0f;
 	static float speed;
 	glm::vec3 _position;
 	glm::vec3 _lookAt;
