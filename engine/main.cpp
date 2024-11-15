@@ -15,6 +15,7 @@ int main()
 	Camera camera(glm::vec3(0.0f, 2, 10), glm::vec3(0, 0, -1), glm::vec3(0, 1, 0));
 	Camera::SetMainCamera(&camera);
 	glfwSetKeyCallback(window, Camera::CameraKeyDetection);//接收一个函数指针
+	//glfwSetCursorPosCallback(window, Camera::CameraMouseDetection);
 	model.loadModel("./Resource/shenhe/shenhe.pmx");
 	while (!glfwWindowShouldClose(window))
 	{

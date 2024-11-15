@@ -13,6 +13,9 @@ Camera::Camera(glm::vec3 position, glm::vec3 lookAt, glm::vec3 up)
 }
 Camera* Camera::MainCamera = nullptr;
 float Camera::speed = 1.0;
+bool Camera::firstTimeMouse = true;
+double Camera::mouseX = 0; double Camera::mouseY = 0; double Camera::sensitivity = 0.05;
+double Camera::pitch = 0; double Camera::yaw = 0;
 void Camera::CameraKeyDetection(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	//view矩阵应用到物体上。View=Rotate*Translate,我们这里只修改其中的translate部分。对于translate来说，就是把模型移动到相机位置，所以这里方向都取负
@@ -48,6 +51,12 @@ void Camera::CameraKeyDetection(GLFWwindow* window, int key, int scancode, int a
 		//x方向
 		transDir = glm::vec3(0, 1, 0) * Camera::speed;
 	}
+	else if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+	{
+		//x方向
+		MainCamera->SetView(glm::rotate(MainCamera->view, glm::radians(45.0f), glm::vec3(0, 1, 0)));
+		return;
+	}
 	else
 	{
 		//do nothing
@@ -61,8 +70,5 @@ inline void Camera::SetView(glm::mat4 new_view)
 	this->view = new_view;
 }
 
-void Camera::CameraMouseDetection()
-{
-}
 
 

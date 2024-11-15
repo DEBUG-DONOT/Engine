@@ -11,7 +11,7 @@ public:
 	inline glm::vec3 GetPosition() { return _position; }
 	inline void SetView(glm::mat4 new_view);
 
-	void CameraMouseDetection();
+	//static void CameraMouseDetection(GLFWwindow* window, double xpos, double ypos);
 	static void CameraKeyDetection(GLFWwindow* window,int key,int scancode,int action,int mods);
 	static void SetMainCamera(Camera* cam) { MainCamera = cam; }
 private:
@@ -23,6 +23,8 @@ private:
 	glm::vec3 _up;
 	glm::mat4 model, view, projection;
 	glm::vec3 cameraFront, cameraUp, cameraRight;
+	static double mouseX, mouseY,sensitivity,pitch,yaw;
+	static bool firstTimeMouse;
 };
 
 
