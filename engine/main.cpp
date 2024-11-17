@@ -12,7 +12,8 @@ int main()
 	FragmentShader frag("./shaderLib/BPFrag.glsl");
 	Shader shader(vert, frag);
 	Model model;
-	Camera camera(glm::vec3(0.0f, 2, 10), glm::vec3(0, 0, -1), glm::vec3(0, 1, 0));
+	Light light(glm::vec3(-5, 10, 0), glm::vec3(0, 0, 0), glm::vec3(255, 255, 255));
+	Camera camera(glm::vec3(0.0f, 2, 10), glm::vec3(0, 2, -1), glm::vec3(0, 1, 0));
 	Camera::SetMainCamera(&camera);
 	glfwSetKeyCallback(window, Camera::CameraKeyDetection);//接收一个函数指针
 	//glfwSetCursorPosCallback(window, Camera::CameraMouseDetection);
@@ -27,8 +28,8 @@ int main()
 		shader.Bind();
 		shader.UpLoadUniformMat4("MVP", camera.GetMVP());
 		shader.UpLoadUniformMat4("model", glm::mat4(1.0));
-		shader.UpLoadUniformFloat3("lightPos", glm::vec3(0, 10, 30));
-		shader.UpLoadUniformFloat3("viewPos", glm::vec3(0, 10, 30));
+		shader.UpLoadUniformFloat3("lightPos", light.GetPos());
+		shader.UpLoadUniformFloat3("viewPos", camera.GetPosition());
 		model.Draw(shader);
 		glfwSwapBuffers(window);
 		glfwPollEvents();

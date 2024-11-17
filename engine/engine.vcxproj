@@ -131,6 +131,7 @@
     <ClCompile Include="functionLayer\Component.cpp" />
     <ClCompile Include="functionLayer\GameObject.cpp" />
     <ClCompile Include="functionLayer\Init.cpp" />
+    <ClCompile Include="functionLayer\Light.cpp" />
     <ClCompile Include="functionLayer\MeshComponent.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ResourceLayer\mesh.cpp" />
@@ -143,6 +144,7 @@
     <ClInclude Include="functionLayer\FunctionLayer.h" />
     <ClInclude Include="functionLayer\GameObject.h" />
     <ClInclude Include="functionLayer\Init.h" />
+    <ClInclude Include="functionLayer\Light.h" />
     <ClInclude Include="functionLayer\MeshComponent.h" />
     <ClInclude Include="functionLayer\Render.h" />
     <ClInclude Include="ResourceLayer\mesh.h" />
