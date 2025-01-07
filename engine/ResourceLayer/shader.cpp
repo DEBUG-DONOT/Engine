@@ -143,6 +143,10 @@ void BasicShader::ReadCodeFromFile(std::string path)
 	 code=SrcCode;
 }
 
+/*
+* 很多时候upLoad失败是因为根本没有用到对应的值，opengl在运行时就不会生成
+*/
+
 void Shader::UpLoadUniformMat4(const std::string& name, const glm::mat4& m_matrix)
 {
 

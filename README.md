@@ -1,7 +1,5 @@
 # 结构
 
-![image-20241110232323742](C:\Users\87784\AppData\Roaming\Typora\typora-user-images\image-20241110232323742.png)
-
 其中平台层不进行处理，核
 
 
@@ -19,6 +17,21 @@
 用来渲染的组件。
 
 调用ResourceLayer中的Model来加载和渲染。
+
+
+
+#### 相机
+
+
+
+##### 遇到的问题
+
+这里有一个问题就是不能做相机的平移的时候需要考虑glm::lookAt函数的参数定义。
+
+参数是（位置，目标位置，up），我们更新摄像机位置的之后，需要重新计算view矩阵，这个时候需要写成这样的形式：
+glm::lookAt(pos,front+pos,up),我们的想法是实现按a和d的时候实现平移，这个时候我们应该就需要让目标位置和相机位置保持front的方向不变，如果我们只写glm::lookAt(pos,front,up),因为这里代表的不是front方向而是目标位置，就会导致我们的相机造成一个旋转的效果。
+
+
 
 # ResourceLayer
 

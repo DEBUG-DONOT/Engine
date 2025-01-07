@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="functionLayer\Box.cpp" />
     <ClCompile Include="functionLayer\Camera.cpp" />
     <ClCompile Include="functionLayer\Component.cpp" />
     <ClCompile Include="functionLayer\GameObject.cpp" />
@@ -139,6 +140,7 @@
     <ClCompile Include="ResourceLayer\shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="functionLayer\Box.h" />
     <ClInclude Include="functionLayer\Camera.h" />
     <ClInclude Include="functionLayer\Component.h" />
     <ClInclude Include="functionLayer\FunctionLayer.h" />

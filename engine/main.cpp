@@ -13,16 +13,14 @@ int main()
 	Shader shader(vert, frag);
 	Model model;
 	Light light(glm::vec3(-5, 10, 0), glm::vec3(0, 0, 0), glm::vec3(255, 255, 255));
-	Camera camera(glm::vec3(0.0f, 2, 10), glm::vec3(0, 2, -1), glm::vec3(0, 1, 0));
+	Camera camera(glm::vec3(0.0f, 5, 25), glm::vec3(0.0, 5, -1), glm::vec3(0, 1, 0));
 	Camera::SetMainCamera(&camera);
-	glfwSetKeyCallback(window, Camera::CameraKeyDetection);//½ÓÊÕÒ»¸öº¯ÊýÖ¸Õë
-	//glfwSetCursorPosCallback(window, Camera::CameraMouseDetection);
+	glfwSetKeyCallback(window, Camera::CameraKeyDetection);//æŽ¥æ”¶ä¸€ä¸ªå‡½æ•°æŒ‡é’ˆ
+	glfwSetCursorPosCallback(window, Camera::CameraMouseDetection);
+	//è¿˜æœ‰ä¸€ä¸ªé¼ æ ‡çš„å¾…å®š
 	model.loadModel("./Resource/shenhe/shenhe.pmx");
 	while (!glfwWindowShouldClose(window))
 	{
-		//fixed time physical loop
-		//render loop	
-		//±³ÃæµÄ¶«Î÷´©Í¸µ½ÕýÃæÀ´ÁË,½á¹ûÊÇÍü¼Ç¿ªÉî¶È²âÊÔÁË
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		shader.Bind();

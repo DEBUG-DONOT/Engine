@@ -45,6 +45,9 @@
     <ClCompile Include="functionLayer\Light.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="functionLayer\Box.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="functionLayer\Component.h">
@@ -81,6 +84,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="functionLayer\Light.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="functionLayer\Box.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
