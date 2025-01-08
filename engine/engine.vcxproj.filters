@@ -91,7 +91,9 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaderLib\BPFrag.glsl" />
-    <None Include="shaderLib\BPVertex.glsl" />
+    <None Include="shaderLib\BPFrag.frag" />
+    <None Include="shaderLib\BPVertex.vert" />
+    <None Include="shaderLib\PBRF.frag" />
+    <None Include="shaderLib\PBRV.vert" />
   </ItemGroup>
 </Project>

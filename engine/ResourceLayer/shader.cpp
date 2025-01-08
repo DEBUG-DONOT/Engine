@@ -144,7 +144,7 @@ void BasicShader::ReadCodeFromFile(std::string path)
 }
 
 /*
-* ºÜ¶àÊ±ºòupLoadÊ§°ÜÊÇÒòÎª¸ù±¾Ã»ÓĞÓÃµ½¶ÔÓ¦µÄÖµ£¬openglÔÚÔËĞĞÊ±¾Í²»»áÉú³É
+* å¾ˆå¤šæ—¶å€™upLoadå¤±è´¥æ˜¯å› ä¸ºæ ¹æœ¬æ²¡æœ‰ç”¨åˆ°å¯¹åº”çš„å€¼ï¼Œopenglåœ¨è¿è¡Œæ—¶å°±ä¸ä¼šç”Ÿæˆ
 */
 
 void Shader::UpLoadUniformMat4(const std::string& name, const glm::mat4& m_matrix)
@@ -174,7 +174,11 @@ void Shader::UpLoadUniformInt(const std::string& name, const int num)
 	int location = glGetUniformLocation(mShaderID, name.c_str());
 	if (location == -1)
 	{
-		std::cout << "upload int fail!" << name << std::endl;
+		if (errorName.find(name) == errorName.end())
+		{
+			std::cout << "up load int fail!" << name << std::endl;
+			errorName.insert(name);
+		}
 	}
 	glUniform1i(location, num);
 }

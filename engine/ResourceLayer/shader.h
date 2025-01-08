@@ -3,6 +3,7 @@
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
 #include<glm/glm.hpp>
+#include<unordered_set>
 class BasicShader
 {
 public:
@@ -17,7 +18,7 @@ private:
 class VertexShader:public BasicShader
 {
 public:
-	//顶点着色器
+	//椤剁偣鐫�鑹插櫒
 	VertexShader(const std::string path)
 		:BasicShader(path)
 	{}
@@ -25,7 +26,7 @@ public:
 
 class FragmentShader:public BasicShader
 {
-	//片段着色器
+	//鐗囨鐫�鑹插櫒
 public:
 	FragmentShader(const std::string path)
 		:BasicShader(path)
@@ -47,7 +48,9 @@ public:
 	void UPLoadUniformFloat2(const std::string& name, const glm::vec2& m_vec2);
 	void UpLoadUniformFloat3(const std::string& name, const glm::vec3& m_vec3);
 	void UpLoadUniformFloat4(const std::string& name, const glm::vec4& m_vec3);
+
 private:
+	std::unordered_set<std::string> errorName;
 	GLuint mShaderID;
 
 };

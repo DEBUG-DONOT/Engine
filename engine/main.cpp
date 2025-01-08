@@ -2,14 +2,17 @@
 #include<functional>
 #include"./functionLayer/FunctionLayer.h"
 #include"./ResourceLayer/ResourceLayer.h"
+#include<glm/gtc/matrix_transform.hpp>
 
 int main()
 {
 	Initialization initializer;
 	initializer.GLFWInitialization();
 	auto* window = initializer.window;
-	VertexShader vert("./shaderLib/BPVertex.glsl");
-	FragmentShader frag("./shaderLib/BPFrag.glsl");
+	//VertexShader vert("./shaderLib/BPVertex.vert");
+	//FragmentShader frag("./shaderLib/BPFrag.frag");
+	VertexShader vert("./shaderLib/PBRV.vert");
+	FragmentShader frag("./shaderLib/PBRF.frag");
 	Shader shader(vert, frag);
 	Model model;
 	Light light(glm::vec3(-5, 10, 0), glm::vec3(0, 0, 0), glm::vec3(255, 255, 255));
@@ -18,16 +21,22 @@ int main()
 	glfwSetKeyCallback(window, Camera::CameraKeyDetection);//接收一个函数指针
 	glfwSetCursorPosCallback(window, Camera::CameraMouseDetection);
 	//还有一个鼠标的待定
-	model.loadModel("./Resource/shenhe/shenhe.pmx");
+	//model.loadModel("./Resource/shenhe/shenhe.pmx");
+	model.loadModel("./Resource/pbr/Cerberus_LP.FBX");
+	//model.checkAllTypeTexture();
+	glm::mat4 modelMatrix = glm::mat4(1.0);
+	modelMatrix = glm::scale(modelMatrix, glm::vec3(0.1f, 0.1f, 0.1f));
+	camera.SetModel(modelMatrix);
 	while (!glfwWindowShouldClose(window))
 	{
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		shader.Bind();
 		shader.UpLoadUniformMat4("MVP", camera.GetMVP());
-		shader.UpLoadUniformMat4("model", glm::mat4(1.0));
+		shader.UpLoadUniformMat4("model", modelMatrix);
 		shader.UpLoadUniformFloat3("lightPos", light.GetPos());
 		shader.UpLoadUniformFloat3("viewPos", camera.GetPosition());
+		shader.UpLoadUniformFloat3("lightColor", glm::vec3(255,255,255));
 		model.Draw(shader);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
