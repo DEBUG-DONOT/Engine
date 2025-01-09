@@ -20,12 +20,16 @@ int main()
 	Camera::SetMainCamera(&camera);
 	glfwSetKeyCallback(window, Camera::CameraKeyDetection);//接收一个函数指针
 	glfwSetCursorPosCallback(window, Camera::CameraMouseDetection);
-	//还有一个鼠标的待定
 	//model.loadModel("./Resource/shenhe/shenhe.pmx");
-	model.loadModel("./Resource/pbr/Cerberus_LP.FBX");
-	//model.checkAllTypeTexture();
+	//model.loadModel("./Resource/pbr/Cerberus_LP.fbx");
+	//model.loadModel("./Resource/Paladin J Nordstrom.fbx");
+	//model.loadModel("./Resource/source/SKETCHFAB_Grizzly_MKV.fbx");
+	//model.loadModel("./Resource/source/tea/model/base.obj");
+	model.loadModel("./Resource/antique_stool_pbrgr.glb");
+	model.checkAllTypeTexture();
+	model.showAllLoadedTexture();
 	glm::mat4 modelMatrix = glm::mat4(1.0);
-	modelMatrix = glm::scale(modelMatrix, glm::vec3(0.1f, 0.1f, 0.1f));
+	modelMatrix = glm::scale(modelMatrix, glm::vec3(0.8f, 0.8f, 0.8f));
 	camera.SetModel(modelMatrix);
 	while (!glfwWindowShouldClose(window))
 	{

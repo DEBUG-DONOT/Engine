@@ -4,6 +4,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include<unordered_map>
 #include<unordered_set>
 #include"shader.h"
 class Model
@@ -25,15 +26,19 @@ class Model
         void DrawPBR(Shader& shader);
         void loadModel(std::string path);
         void checkAllTypeTexture();
+		void showAllLoadedTexture();
     private:
         /*  函数   */
         void processNode(aiNode *node, const aiScene *scene);
         Mesh processMesh(aiMesh *mesh, const aiScene *scene);
         vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, 
             string typeName, vector<bool> *bRepeats = nullptr);
+        vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, 
+            string typeName,const aiScene* scene, vector<bool>* bRepeats);
         unsigned int TextureFromFile(const char *path, const string &directory, bool gamma = false);
+        unsigned int TextureEembed(const aiTexture* aitex);
         //用来查看有多少种类的texture
-        std::unordered_set<std::string> allTypeTexture;
+        std::unordered_map<std::string,int> allTypeTexture;
 };
 
 

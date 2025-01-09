@@ -43,6 +43,8 @@ texture_height
 texture_normal
 texture_ao
 
+现在可以确定的是，assimp没有只加载了diffuse的纹理，其他的都没有加载。
+
 
 
 
