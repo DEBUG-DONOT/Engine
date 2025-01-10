@@ -42,7 +42,6 @@ void Mesh::Draw(Shader& shader)
         glBindTexture(GL_TEXTURE_2D, textures[i].id);
     }
     //glActiveTexture(GL_TEXTURE0);
-
     // 绘制网格
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
@@ -91,6 +90,46 @@ void Mesh::Draw(GLuint shader)
 
 void Mesh::DrawPBR(Shader& shader)
 {
+    //unsigned int diffuseNr = 1;
+    //unsigned int specularNr = 1;
+    //unsigned int normalNr = 1;
+    //unsigned int heightNr = 1;
+    //unsigned int albedoNr = 1;
+    //unsigned int metallicNr = 1;
+    //unsigned int roughnessNr = 1;
+    //unsigned int aoNr = 1;
+    //for (unsigned int i = 0; i < textures.size(); i++)
+    //{
+    //    glActiveTexture(GL_TEXTURE0 + i); // 在绑定之前激活相应的纹理单元
+    //    // 获取纹理序号（diffuse_textureN 中的 N）
+    //    string number;
+    //    string name = textures[i].type;
+    //    if (name == "texture_diffuse")
+    //        number = std::to_string(diffuseNr++);
+    //    else if (name == "texture_specular")
+    //        number = std::to_string(specularNr++);
+    //    else if (name == "texture_normal")
+    //        number = std::to_string(normalNr++); // transfer unsigned int to string
+    //    else if (name == "texture_height")
+    //        number = std::to_string(heightNr++); // transfer unsigned int to string
+    //    else if (name == "texture_albedo")
+    //        number = std::to_string(albedoNr++);
+    //    else if (name == "texture_metallic")
+    //        number = std::to_string(metallicNr++);
+    //    else if (name == "texture_roughness")
+    //        number = std::to_string(roughnessNr++);
+    //    else if (name == "texture_ao")
+    //        number = std::to_string(aoNr++);
+
+    //    shader.UpLoadUniformInt(name + number, i);
+    //    glBindTexture(GL_TEXTURE_2D, textures[i].id);
+    //}
+    //glActiveTexture(GL_TEXTURE0);
+
+    // 绘制网格
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
 }
 
 void Mesh::setupMesh()

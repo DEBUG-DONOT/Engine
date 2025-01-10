@@ -27,16 +27,21 @@ struct Vertex {
 	float m_Weights[MAX_BONE_INFLUENCE];
 };
 
-struct Texture {
+struct Texture 
+{
     unsigned int id;
     string type;
     string path;    // 我们储存纹理的路径用于与其它纹理进行比较
-    bool operator==(const Texture& other) const {
+    bool operator==(const Texture& other) const 
+    {
         return id == other.id && type == other.type && path == other.path;
     }
+    //void LoadFromFile(std::string path);
+
 };
 
-class Mesh {
+class Mesh 
+{
     public:
         /*  网格数据  */
         vector<Vertex> vertices;

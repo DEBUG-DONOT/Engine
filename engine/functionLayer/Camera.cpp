@@ -45,6 +45,14 @@ void Camera::CameraKeyDetection(GLFWwindow* window, int key, int scancode, int a
 		//x方向
 		MainCamera->_position += glm::normalize(glm::cross(MainCamera->cameraFront, MainCamera->cameraUp)) * Camera::speed;
 	}
+	else if (key == GLFW_KEY_Q && (action == GLFW_PRESS || action == GLFW_REPEAT))
+	{
+		MainCamera->_position += MainCamera->cameraUp * Camera::speed;
+	}
+	else if (key == GLFW_KEY_E && (action == GLFW_PRESS || action == GLFW_REPEAT))
+	{
+		MainCamera->_position -= MainCamera->cameraUp * Camera::speed;
+	}
 	MainCamera->SetView( glm::lookAt(MainCamera-> _position, MainCamera->cameraFront + MainCamera->_position, MainCamera->cameraUp));
 }
 

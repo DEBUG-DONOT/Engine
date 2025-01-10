@@ -48,6 +48,9 @@
     <ClCompile Include="functionLayer\Box.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="ResourceLayer\SingleTexture.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="functionLayer\Component.h">
@@ -89,11 +92,16 @@
     <ClInclude Include="functionLayer\Box.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="ResourceLayer\SingleTexture.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaderLib\BPFrag.frag" />
     <None Include="shaderLib\BPVertex.vert" />
     <None Include="shaderLib\PBRF.frag" />
     <None Include="shaderLib\PBRV.vert" />
+    <None Include="shaderLib\samplePBR.vert" />
+    <None Include="shaderLib\samplePBR.frag" />
   </ItemGroup>
 </Project>

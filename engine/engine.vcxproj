@@ -138,6 +138,7 @@
     <ClCompile Include="ResourceLayer\mesh.cpp" />
     <ClCompile Include="ResourceLayer\model.cpp" />
     <ClCompile Include="ResourceLayer\shader.cpp" />
+    <ClCompile Include="ResourceLayer\SingleTexture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="functionLayer\Box.h" />
@@ -153,12 +154,15 @@
     <ClInclude Include="ResourceLayer\model.h" />
     <ClInclude Include="ResourceLayer\ResourceLayer.h" />
     <ClInclude Include="ResourceLayer\shader.h" />
+    <ClInclude Include="ResourceLayer\SingleTexture.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaderLib\BPFrag.frag" />
     <None Include="shaderLib\BPVertex.vert" />
     <None Include="shaderLib\PBRF.frag" />
     <None Include="shaderLib\PBRV.vert" />
+    <None Include="shaderLib\samplePBR.frag" />
+    <None Include="shaderLib\samplePBR.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

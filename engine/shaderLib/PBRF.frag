@@ -8,8 +8,8 @@ uniform vec3 lightPos;
 uniform vec3 viewPos;
 uniform vec3 lightColor;
 
-uniform sampler2D texture_diffuse1;
-uniform sampler2D texture_specular1;
+//uniform sampler2D texture_diffuse1;
+//uniform sampler2D texture_specular1;
 uniform sampler2D texture_albedo1;
 uniform sampler2D texture_normal1;
 uniform sampler2D texture_metallic1;
@@ -58,6 +58,7 @@ void main()
     //calculate radiance
     float dist=length(lightPos-FragPos);
     float attenuation=1.0/(dist*dist);
+    //float attenuation=1.0;
     vec3 radiance=lightColor*attenuation;
     //cook-torrance brdf
     float N=NormalDF(roughness,n,h);

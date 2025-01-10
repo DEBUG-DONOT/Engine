@@ -27,6 +27,10 @@ void Model::Draw(GLuint shader)
 
 void Model::DrawPBR(Shader& shader)
 {
+    for (unsigned int i = 0; i < meshes.size(); i++)
+    {
+        meshes[i].DrawPBR(shader);  
+    }
 }
 
 void Model::loadModel(string path)
@@ -288,14 +292,14 @@ vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type,
     if (bRepeats != nullptr)//如果不为空就清除
         bRepeats->clear();
     vector<Texture> textures;
-    std::cout << "In LoadMaterialTextures " << typeName << std::endl;
+    //std::cout << "In LoadMaterialTextures " << typeName << std::endl;
     for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
     {
         aiString str;
         mat->GetTexture(type, i, &str);
         //string strUtf8(str.C_Str());
         //string strFromUtf8 = UTF8ToANSI(strUtf8);
-        std::cout << "   Load " << str.C_Str() << "type " << typeName << std::endl;
+        //std::cout << "   Load " << str.C_Str() << "type " << typeName << std::endl;
         // check if texture was loaded before and if so, 
         // continue to next iteration: skip loading a new texture
         bool skip = false;
@@ -316,7 +320,7 @@ vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type,
             auto aitex = scene->GetEmbeddedTexture(str.C_Str());//因为是FBX，嵌入的纹理，要从场景中加载纹理
             if (aitex != nullptr)
             {
-                std::cout << "use embedded texture" << std::endl;
+                //std::cout << "use embedded texture" << std::endl;
                 texture.id = TextureEembed(aitex);
             }
             else texture.id = TextureFromFile(str.C_Str(), this->directory);
