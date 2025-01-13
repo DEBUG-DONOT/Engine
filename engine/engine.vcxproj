@@ -127,7 +127,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="functionLayer\Box.cpp" />
     <ClCompile Include="functionLayer\Camera.cpp" />
     <ClCompile Include="functionLayer\Component.cpp" />
     <ClCompile Include="functionLayer\GameObject.cpp" />
@@ -141,12 +140,12 @@
     <ClCompile Include="ResourceLayer\SingleTexture.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="functionLayer\Box.h" />
     <ClInclude Include="functionLayer\Camera.h" />
     <ClInclude Include="functionLayer\Component.h" />
     <ClInclude Include="functionLayer\FunctionLayer.h" />
     <ClInclude Include="functionLayer\GameObject.h" />
     <ClInclude Include="functionLayer\Init.h" />
+    <ClInclude Include="functionLayer\items.h" />
     <ClInclude Include="functionLayer\Light.h" />
     <ClInclude Include="functionLayer\MeshComponent.h" />
     <ClInclude Include="functionLayer\Render.h" />

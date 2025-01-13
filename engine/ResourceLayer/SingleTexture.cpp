@@ -11,6 +11,7 @@ unsigned int SingleTexure::LoadTexture(std::string path)
     glGenTextures(1, &textureID);
     stbi_set_flip_vertically_on_load(false);
     int width, height, nrComponents;
+    stbi_set_flip_vertically_on_load(false);
     unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
     if (data)
     {

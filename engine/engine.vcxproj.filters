@@ -45,9 +45,6 @@
     <ClCompile Include="functionLayer\Light.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="functionLayer\Box.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="ResourceLayer\SingleTexture.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -89,10 +86,10 @@
     <ClInclude Include="functionLayer\Light.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="functionLayer\Box.h">
+    <ClInclude Include="ResourceLayer\SingleTexture.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ResourceLayer\SingleTexture.h">
+    <ClInclude Include="functionLayer\items.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

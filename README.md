@@ -1,6 +1,14 @@
-# 结构
+# 计划
 
-其中平台层不进行处理，核
+- 一个球的类，接受一个shader作为参数来绘制
+- 一个box的类
+- 实现球的PBR
+- 导入ImGUI实现有UI控制的球的PBR
+- 实现defered shading
+- Shadow Map
+- 待IBL的PBR
+
+# 结构
 
 
 

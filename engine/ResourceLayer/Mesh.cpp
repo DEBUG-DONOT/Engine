@@ -128,7 +128,7 @@ void Mesh::DrawPBR(Shader& shader)
 
     // 绘制网格
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);//DrawCall 对于每一个mesh都会调用
     glBindVertexArray(0);
 }
 
