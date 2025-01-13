@@ -53,7 +53,11 @@ texture_ao
 
 现在可以确定的是，assimp没有只加载了diffuse的纹理，其他的都没有加载。
 
+纹理加载问题对于不同格式的模型差距比较大，能够稳定加载的是glb，assimp对fbx的支持不是很到位。
 
+
+
+模型的颜色不对主要还是纹理对应的绑定有问题，不能在for循环中执行shader.UpLoadUniformInt("aoMap", ao.texture_id);这样的操作。
 
 
 

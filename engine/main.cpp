@@ -49,13 +49,15 @@ int main()
 		shader.Bind();
 		shader.UpLoadUniformMat4("MVP", camera.GetMVP());
 		shader.UpLoadUniformMat4("model", modelMatrix);
+
 		//shader.UpLoadUniformFloat3("lightPos", light.GetPos());
-		shader.UpLoadUniformFloat3("lightPositions", light.GetPos());//sample
 		//shader.UpLoadUniformFloat3("viewPos", camera.GetPosition());
+		//shader.UpLoadUniformFloat3("lightColor", light.GetColor());
+		shader.UpLoadUniformFloat3("lightPositions", light.GetPos());//sample
 		shader.UpLoadUniformFloat3("camPos", camera.GetPosition());//sample
-		shader.UpLoadUniformFloat3("lightColors", light.GetColor());
+		shader.UpLoadUniformFloat3("lightColors", light.GetColor());//sample
 		//*******************************************************
-		glActiveTexture(GL_TEXTURE0 );
+		glActiveTexture(GL_TEXTURE0 );//纹理一定要从0开始绑定
 		albedo.bind();
 		glActiveTexture(GL_TEXTURE0 + 1);
 		normal.bind();

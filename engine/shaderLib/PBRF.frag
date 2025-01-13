@@ -10,11 +10,11 @@ uniform vec3 lightColor;
 
 //uniform sampler2D texture_diffuse1;
 //uniform sampler2D texture_specular1;
-uniform sampler2D texture_albedo1;
-uniform sampler2D texture_normal1;
-uniform sampler2D texture_metallic1;
-uniform sampler2D texture_roughness1;
-uniform sampler2D texture_ao1;
+uniform sampler2D albedoMap;
+uniform sampler2D normalMap;
+uniform sampler2D metallicMap;
+uniform sampler2D roughnessMap;
+uniform sampler2D aoMap;
 
 
 //uniform sampler2D 
@@ -26,7 +26,7 @@ float pi=3.14159;
 
 vec3 getNormalFromMap()
 {
-    vec3 tangentNormal = texture(texture_normal1, nTexCoord).xyz * 2.0 - 1.0;
+    vec3 tangentNormal = texture(normalMap, nTexCoord).xyz * 2.0 - 1.0;
 
     vec3 Q1  = dFdx(FragPos);
     vec3 Q2  = dFdy(FragPos);
@@ -43,11 +43,11 @@ vec3 getNormalFromMap()
 
 void main()
 {
-
-    vec3 albedo=pow(texture(texture_albedo1,nTexCoord).rgb,vec3(2.2));
-    float metallic=texture(texture_metallic1,nTexCoord).r;
-    float roughness=texture(texture_roughness1,nTexCoord).r;
-    float ao=texture(texture_ao1,nTexCoord).r;
+    //vec3 albedo=pow(texture(albedoMap,nTexCoord).rgb,vec3(2.2));
+    vec3 albedo     = texture(albedoMap, nTexCoord).rgb;
+    float metallic=texture(metallicMap,nTexCoord).r;
+    float roughness=texture(roughnessMap,nTexCoord).r;
+    float ao=texture(aoMap,nTexCoord).r;
     vec3 n= getNormalFromMap();
     vec3 v=normalize(viewPos-FragPos);
     vec3 l=normalize(lightPos-FragPos);
@@ -75,7 +75,7 @@ void main()
     vec3 diffuse=kd*albedo/pi;
     Lo+=(diffuse+specular)*radiance*NdotL;
     //ambient
-    vec3 ambient=vec3(0.03)*albedo*ao;
+    vec3 ambient=vec3(0.8)*albedo*ao;
     //HDR
     vec3 color=Lo+ambient;
     color= color/(color+vec3(1.0));
