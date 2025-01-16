@@ -16,3 +16,13 @@ class Box
 {
 	//一个box的类
 };
+
+class Circle
+{
+	//一个圆
+public:
+	Circle();
+	~Circle();
+
+
+};

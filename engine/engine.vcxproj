@@ -131,6 +131,7 @@
     <ClCompile Include="functionLayer\Component.cpp" />
     <ClCompile Include="functionLayer\GameObject.cpp" />
     <ClCompile Include="functionLayer\Init.cpp" />
+    <ClCompile Include="functionLayer\items.cpp" />
     <ClCompile Include="functionLayer\Light.cpp" />
     <ClCompile Include="functionLayer\MeshComponent.cpp" />
     <ClCompile Include="main.cpp" />

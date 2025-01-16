@@ -15,14 +15,14 @@ void Initialization::GLFWInitialization(int width, int high, const char* name)
         //return -1;
         throw "Failed to create GLFW window";
     }
-    glfwMakeContextCurrent(window);
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    glfwMakeContextCurrent(window);//设置上下文
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))//初始化OpenGL函数指针
     {
         std::cout << "Failed to initialize GLAD" << std::endl;
     }
-    glViewport(0, 0, 1600, 900);
+    glViewport(0, 0, 1920, 1080);//设置vidwport
     glEnable(GL_CULL_FACE);
-    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);//深度测试
     glDepthFunc(GL_LESS);
 
 }

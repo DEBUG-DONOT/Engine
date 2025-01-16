@@ -48,6 +48,9 @@
     <ClCompile Include="ResourceLayer\SingleTexture.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="functionLayer\items.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="functionLayer\Component.h">

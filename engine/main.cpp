@@ -5,7 +5,8 @@
 #include<glm/gtc/matrix_transform.hpp>
 #include"./ResourceLayer/SingleTexture.h"
 #include <fstream>
-int main()
+#include <cmath>
+void gun()
 {
 	Initialization initializer;
 	initializer.GLFWInitialization();
@@ -37,6 +38,7 @@ int main()
 	modelMatrix = glm::scale(modelMatrix, glm::vec3(0.2f, 0.2f, 0.2f));
 	camera.SetModel(modelMatrix);
 	//这些不能放在for循环中
+	//shader.Bind();
 	shader.UpLoadUniformInt("albedoMap", albedo.texture_id);
 	shader.UpLoadUniformInt("normalMap", normal.texture_id);
 	shader.UpLoadUniformInt("metallicMap", metallic.texture_id);
@@ -57,7 +59,7 @@ int main()
 		shader.UpLoadUniformFloat3("camPos", camera.GetPosition());//sample
 		shader.UpLoadUniformFloat3("lightColors", light.GetColor());//sample
 		//*******************************************************
-		glActiveTexture(GL_TEXTURE0 );//纹理一定要从0开始绑定
+		glActiveTexture(GL_TEXTURE0);//纹理一定要从0开始绑定
 		albedo.bind();
 		glActiveTexture(GL_TEXTURE0 + 1);
 		normal.bind();
@@ -73,5 +75,25 @@ int main()
 		glfwPollEvents();
 	}
 	glfwTerminate();
-	return 0;
+}
+
+void drawCircle()
+{
+	Initialization initializer;
+	initializer.GLFWInitialization();//默认开启深度测试
+	auto* window = initializer.window;
+	while (!glfwWindowShouldClose(window))
+	{
+		
+
+
+		glfwPollEvents();
+		glfwSwapBuffers(window);
+	}
+	glfwTerminate();
+}
+
+int main()
+{
+
 }
