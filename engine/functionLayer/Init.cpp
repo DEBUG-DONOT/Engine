@@ -3,9 +3,9 @@
 void Initialization::GLFWInitialization(int width, int high, const char* name)
 {
     glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);//ÉèÖÃ°æ±¾
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);//è®¾ç½®ç‰ˆæœ¬
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);//macosÖ»Ö§³Öcore profile
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);//macosåªæ”¯æŒcore profile
     glfwWindowHint(GLFW_SAMPLES, 4);
     this->window = glfwCreateWindow(width, high, name, NULL, NULL);
     if (window == NULL)
@@ -15,14 +15,14 @@ void Initialization::GLFWInitialization(int width, int high, const char* name)
         //return -1;
         throw "Failed to create GLFW window";
     }
-    glfwMakeContextCurrent(window);//ÉèÖÃÉÏÏÂÎÄ
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))//³õÊ¼»¯OpenGLº¯ÊıÖ¸Õë
+    glfwMakeContextCurrent(window);//è®¾ç½®ä¸Šä¸‹æ–‡
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))//åˆå§‹åŒ–OpenGLå‡½æ•°æŒ‡é’ˆ
     {
         std::cout << "Failed to initialize GLAD" << std::endl;
     }
-    glViewport(0, 0, 1920, 1080);//ÉèÖÃvidwport
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_DEPTH_TEST);//Éî¶È²âÊÔ
+    glViewport(0, 0, 1920, 1080);//è®¾ç½®vidwport
+    //glEnable(GL_CULL_FACE);
+    glEnable(GL_DEPTH_TEST);//æ·±åº¦æµ‹è¯•
     glDepthFunc(GL_LESS);
 
 }

@@ -103,5 +103,9 @@
     <None Include="shaderLib\PBRV.vert" />
     <None Include="shaderLib\samplePBR.vert" />
     <None Include="shaderLib\samplePBR.frag" />
+    <None Include="shaderLib\box.vert" />
+    <None Include="shaderLib\box.frag" />
+    <None Include="shaderLib\triangle.vert" />
+    <None Include="shaderLib\triangle.frag" />
   </ItemGroup>
 </Project>

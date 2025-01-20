@@ -157,12 +157,16 @@
     <ClInclude Include="ResourceLayer\SingleTexture.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaderLib\box.frag" />
+    <None Include="shaderLib\box.vert" />
     <None Include="shaderLib\BPFrag.frag" />
     <None Include="shaderLib\BPVertex.vert" />
     <None Include="shaderLib\PBRF.frag" />
     <None Include="shaderLib\PBRV.vert" />
     <None Include="shaderLib\samplePBR.frag" />
     <None Include="shaderLib\samplePBR.vert" />
+    <None Include="shaderLib\triangle.frag" />
+    <None Include="shaderLib\triangle.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

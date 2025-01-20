@@ -15,7 +15,6 @@ public:
 	static void CameraKeyDetection(GLFWwindow* window,int key,int scancode,int action,int mods);
 	static void CameraMouseDetection(GLFWwindow* window,double xpos,double ypos);
 	static void SetMainCamera(Camera* cam) { MainCamera = cam; }
-
 private:
 	static Camera* MainCamera;
 	float aspect = 16.0 / 9.0, fov = glm::radians(45.0), near = 0.1, far = 100.0f;

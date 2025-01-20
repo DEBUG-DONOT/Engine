@@ -3,8 +3,8 @@
 #include<glm/glm.hpp>
 class Sphere
 {
-	//һ�������
-	//ʵ����ֻ��Ҫ�ǵ�λ����Ϊλ�úʹ�С����ͨ��model�������
+	//一个球的类
+	//实际上只需要是单位球，因为位置和大小可以通过model矩阵调节
 	Sphere();
 
 
@@ -12,17 +12,29 @@ class Sphere
 
 };
 
+class Triangle
+{
+public:
+	Triangle();
+	void Draw(Shader& shader);
+	unsigned int vbo,vao;
+};
+
 class Box
 {
-	//һ��box����
+	//一个box的类
+public:
+	Box();
+	void Draw(Shader& shader);
+	unsigned int vbo,vao;
+private:
+	
 };
 
 class Circle
 {
-	//һ��Բ
+	//一个圆
 public:
 	Circle();
 	~Circle();
-
-
 };
