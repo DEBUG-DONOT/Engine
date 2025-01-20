@@ -115,82 +115,56 @@ void DrawBox()
 	Camera::SetMainCamera(&camera);
 	glfwSetKeyCallback(window, Camera::CameraKeyDetection);//接收一个函数指针
 	glfwSetCursorPosCallback(window, Camera::CameraMouseDetection);
-	float vertices[] = {
-	 -0.5f, -0.5f, -0.5f,
-	  0.5f, -0.5f, -0.5f,
-	  0.5f,  0.5f, -0.5f,
-	  0.5f,  0.5f, -0.5f,
-	 -0.5f,  0.5f, -0.5f,
-	 -0.5f, -0.5f, -0.5f,
-
-	 -0.5f, -0.5f,  0.5f,
-	  0.5f, -0.5f,  0.5f,
-	  0.5f,  0.5f,  0.5f,
-	  0.5f,  0.5f,  0.5f,
-	 -0.5f,  0.5f,  0.5f,
-	 -0.5f, -0.5f,  0.5f,
-
-	 -0.5f,  0.5f,  0.5f,
-	 -0.5f,  0.5f, -0.5f,
-	 -0.5f, -0.5f, -0.5f,
-	 -0.5f, -0.5f, -0.5f,
-	 -0.5f, -0.5f,  0.5f,
-	 -0.5f,  0.5f,  0.5f,
-
-	  0.5f,  0.5f,  0.5f,
-	  0.5f,  0.5f, -0.5f,
-	  0.5f, -0.5f, -0.5f,
-	  0.5f, -0.5f, -0.5f,
-	  0.5f, -0.5f,  0.5f,
-	  0.5f,  0.5f,  0.5f,
-
-	 -0.5f, -0.5f, -0.5f,
-	  0.5f, -0.5f, -0.5f,
-	  0.5f, -0.5f,  0.5f,
-	  0.5f, -0.5f,  0.5f,
-	 -0.5f, -0.5f,  0.5f,
-	 -0.5f, -0.5f, -0.5f,
-
-	 -0.5f,  0.5f, -0.5f,
-	  0.5f,  0.5f, -0.5f,
-	  0.5f,  0.5f,  0.5f,
-	  0.5f,  0.5f,  0.5f,
-	 -0.5f,  0.5f,  0.5f,
-	 -0.5f,  0.5f, -0.5f,
-	};
-	// first, configure the cube's VAO (and VBO)
-	unsigned int VBO, cubeVAO;
-	glGenVertexArrays(1, &cubeVAO);
-	glGenBuffers(1, &VBO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	glBindVertexArray(cubeVAO);
-
-	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
 	while (!glfwWindowShouldClose(window))
 	{
 		glClearColor(0.2f, 0.3f, 0.5f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//glClear( GL_DEPTH_BUFFER_BIT);
 		shader.Bind();
 		glm::mat4 projection =camera.GetProjection();
 		glm::mat4 view = camera.GetView();
 		shader.UpLoadUniformMat4("model", glm::mat4(1.0));
 		shader.UpLoadUniformMat4("view", view);
 		shader.UpLoadUniformMat4("projection", projection);
-		//box.Draw(shader);
-		glBindVertexArray(cubeVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		box.Draw(shader);
+		//glBindVertexArray(cubeVAO);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
 		glfwPollEvents();
 		glfwSwapBuffers(window);
 	}
 	glfwTerminate();
 }
 
+void DrawSphere()
+{
+	Initialization initializer;
+	initializer.GLFWInitialization();
+	auto* window = initializer.window;
+	VertexShader vert("./shaderLib/BoxPBR.vert");
+	FragmentShader frag("./shaderLib/BoxPBR.frag");
+	Shader shader(vert, frag);
+	Model model;
+	Light light(glm::vec3(-5, 10, 0), glm::vec3(0, 0, 0), glm::vec3(100, 150, 200));//light dir color
+	Camera camera(glm::vec3(0.0f, 5, 25), glm::vec3(0.0, 5, -1), glm::vec3(0, 1, 0));
+	Camera::SetMainCamera(&camera);
+	glfwSetKeyCallback(window, Camera::CameraKeyDetection);//接收一个函数指针
+	glfwSetCursorPosCallback(window, Camera::CameraMouseDetection);
+	Sphere sp;
+	while (!glfwWindowShouldClose(window))
+	{
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		shader.Bind();
+		shader.UpLoadUniformMat4("MVP", camera.GetMVP());
+		sp.DrawPBR(shader);
+		glfwSwapBuffers(window);
+		glfwPollEvents();
+	}
+	glfwTerminate();
+}
+
 int main()
 {
-	DrawBox();
+	DrawSphere();
+	//DrawBox();
 }

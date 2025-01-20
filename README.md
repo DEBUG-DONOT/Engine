@@ -1,12 +1,13 @@
 # 计划
 
-- 一个球的类，接受一个shader作为参数来绘制
-- 一个box的类
-- 实现球的PBR
-- 导入ImGUI实现有UI控制的球的PBR
-- 实现defered shading
-- Shadow Map
-- 待IBL的PBR
+- [x] 一个box的类
+- [x] 实现一个Sphere的类 
+- [ ] 实现box的PBR
+- [ ] 导入ImGUI实现有UI控制的球的PBR
+- [ ] 导入ImGUI实现有UI控制的球的PBR
+- [ ] Shadow Map
+- [ ] 实现defered shading
+- [ ] 待IBL的PBR
 
 # 结构
 
@@ -98,3 +99,12 @@ mesh中的值存储在vertex类中，包含位置、法线、纹理坐标等。
 ## shader
 
 对shader的一个优化：如果shader上传失败的话，会不停的重新尝试，我们加上一个变量控制这个问题。
+
+# 碰到的问题
+
+开启深度测试之后没有清理 GL_DEPTH_BUFFER_BIT,导致画面上只有clear-color 的颜色。
+
+如果不清理GL_Color_BUffer_BIt, 那么屏幕就会一直保持第一帧的颜色，如果不清理GL_Depth_Bit,那么物体就会无法显示。
+
+它们就是默认的framebuffer的attachment。
+

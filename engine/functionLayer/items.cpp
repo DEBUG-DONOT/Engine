@@ -1,4 +1,8 @@
 #include "items.h"
+#include<iostream>
+#include<fstream>
+#include <direct.h> // 包含_getcwd函数
+#include <limits.h> // 包含_MAX_PATH常量
 
 float box_vertices[] = 
 {
@@ -116,4 +120,31 @@ void Triangle::Draw(Shader& shader)
     glBindVertexArray(vao);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
+}
+
+Sphere::Sphere()
+{
+    //generate values
+    modle_ptr = make_shared<Model>();
+    //char cwd[_MAX_PATH];
+    //if (_getcwd(cwd, sizeof(cwd)) != NULL) {
+    //    std::cout << "Current working directory: " << cwd << std::endl;
+    //}
+    //else {
+    //    perror("_getcwd() error");
+    //}
+    //std::ifstream file("./Resource/sphere.glb");
+    //if (!file) {
+    //    std::cerr << "Error: Unable to open file " <<"../Resource/sphere.glb" << std::endl;
+    //}
+    //else {
+    //    std::cout << "File opened successfully." << std::endl;//对
+    //}
+    modle_ptr->loadModel("./Resource/sphere.glb");
+}
+
+void Sphere::DrawPBR(Shader& shader)
+{
+    shader.Bind();
+    modle_ptr->DrawPBR(shader);
 }
