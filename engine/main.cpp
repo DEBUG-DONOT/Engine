@@ -7,6 +7,9 @@
 #include <fstream>
 #include <cmath>
 #include"./functionLayer/items.h"
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 void gun()
 {
 	Initialization initializer;
@@ -140,38 +143,70 @@ void DrawSphere()
 	Initialization initializer;
 	initializer.GLFWInitialization();
 	auto* window = initializer.window;
+
+	// Setup Dear ImGui context
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+	//io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // IF using Docking Branch
+
+	// Setup Platform/Renderer backends
+	ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
+	ImGui_ImplOpenGL3_Init();
+
 	VertexShader vert("./shaderLib/BoxPBR.vert");
 	FragmentShader frag("./shaderLib/BoxPBR.frag");
+	//FragmentShader frag("./shaderLib/sampleBox.frag");
 	Shader shader(vert, frag);
 	Model model;
-	Light light(glm::vec3(-5, 10, 0), glm::vec3(0, 0, 0), glm::vec3(100, 150, 200));//light dir color
-	Camera camera(glm::vec3(0.0f, 5, 25), glm::vec3(0.0, 5, -1), glm::vec3(0, 1, 0));
+	Light light(glm::vec3(-10, 10, 0), glm::vec3(0, 0, 0), glm::vec3(300, 300, 300));//light dir color
+	Camera camera(glm::vec3(0.0f, 40, 25), glm::vec3(0.0, 5, -1), glm::vec3(0, 1, 0));
 	Camera::SetMainCamera(&camera);
-	glfwSetKeyCallback(window, Camera::CameraKeyDetection);//接收一个函数指针
-	glfwSetCursorPosCallback(window, Camera::CameraMouseDetection);
+	//glfwSetKeyCallback(window, Camera::CameraKeyDetection);//接收一个函数指针
+	//glfwSetCursorPosCallback(window, Camera::CameraMouseDetection);
 	Sphere sp;
+	glm::mat4 modelMatrix = glm::scale(glm::mat4(1.0), glm::vec3(0.3, 0.3, 0.3));
+	camera.SetModel(modelMatrix);
+	float roughness = 0, metallic = 0;
 	while (!glfwWindowShouldClose(window))
 	{
+		glfwPollEvents();
+		// Start the Dear ImGui frame
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+		//ImGui::ShowDemoWindow(); // Show demo window! :)
+		ImGui::SliderFloat("roughtness", &roughness, 0, 1);
+		ImGui::SliderFloat("metallic", &metallic, 0, 1);
+		// Rendering
+		// (Your code clears your framebuffer, renders your other stuff etc.)
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		shader.Bind();
 		shader.UpLoadUniformMat4("MVP", camera.GetMVP());
-		shader.UpLoadUniformMat4("model", glm::mat4(1.0));
-		shader.UpLoadUniformFloat3("lightColor", glm::vec3(255, 200, 200));
+		shader.UpLoadUniformMat4("model", modelMatrix);
+		shader.UpLoadUniformFloat3("lightColor", glm::vec3(300, 300, 300));
 		shader.UpLoadUniformFloat3("lightPosition", light.GetPos());
 		shader.UpLoadUniformFloat3("eyePosition", camera.GetPosition());
-		shader.UpLoadUniformFloat("metallic", 0.0);
-		shader.UpLoadUniformFloat("roughness", 0.1);
+		shader.UpLoadUniformFloat("metallic", metallic);
+		shader.UpLoadUniformFloat("roughness", roughness);
 		shader.UpLoadUniformFloat3("albedo", glm::vec3(255, 0, 0));
 		sp.DrawPBR(shader);
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		// (Your code calls glfwSwapBuffers() etc.)
 		glfwSwapBuffers(window);
-		glfwPollEvents();
 	}
 	glfwTerminate();
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
 }
 
 int main()
 {
 	DrawSphere();
-	//DrawBox();
+	//ImGui::ShowDemoWindow();
 }

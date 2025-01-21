@@ -61,7 +61,7 @@ void main()
 	float ndotl=max(dot(n,l),0.0);//上半球
 	//direct light
 	vec3 kDColor=(albedo/(PI));
-	vec3 KSColor=F*G*NDF/(4.0*max(dot(n,v),0.0)*max(dot(n,l),0.0)+0.001);
+	vec3 KSColor=F*G*NDF/(4.0*max(dot(n,v),0.0)*max(dot(n,l),0.0)+0.000001);
 	//KD+KS表示BRDF，也就是对于radiance有多少光出射，所以这里可以用对应相乘
 	vec3 color=(kD*kDColor+KSColor)*ndotl*radiance;
 	//ambient

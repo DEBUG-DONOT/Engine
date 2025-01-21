@@ -2,8 +2,7 @@
 
 - [x] 一个box的类
 - [x] 实现一个Sphere的类 
-- [ ] 实现box的PBR
-- [ ] 导入ImGUI实现有UI控制的球的PBR
+- [x] 实现球的PBR
 - [ ] 导入ImGUI实现有UI控制的球的PBR
 - [ ] Shadow Map
 - [ ] 实现defered shading
