@@ -10,7 +10,7 @@ uniform float metallic;
 uniform float roughness;
 uniform vec3 albedo;
 
-float PI = 3.141592;
+float PI = 3.14159265359;
 vec3 Frenel(vec3 h,vec3 v,vec3 F0)
 {
 	return F0+(vec3(1.0)-F0)*pow(1.0-max(dot(h,v),0.0),5.0);
@@ -20,8 +20,11 @@ vec3 Frenel(vec3 h,vec3 v,vec3 F0)
 float NormalDistribution(vec3 n,vec3 h)
 {
 	float alpha2=roughness*roughness;
-	float under=pow(max(dot(n,h),0.0),2.0)*(alpha2-1.0)+1.0;
-	return alpha2/(PI*pow(under,2.0));
+	float a2=alpha2*alpha2;
+	//float under=pow(max(dot(n,h),0.0),2.0)*(alpha2-1.0)+1.0;
+	float under=pow(max(dot(n,h),0.0),2.0)*(a2-1.0)+1.0;
+	//return alpha2/(PI*pow(under,2.0));
+	return a2/(PI*pow(under,2.0));
 }
 
 float GSub(float ndotv,	float k)
@@ -45,7 +48,8 @@ void main()
 	vec3 n=normalize(fragNormal);
 	vec3 h=normalize(v+l);
 	//radiance
-	float dis=distance(fragPosition, lightPosition);
+	//float dis=distance(fragPosition, lightPosition);
+	float dis=length(fragPosition-lightPosition);
 	float attenuation=1.0/(dis*dis);
 	vec3 radiance=lightColor*attenuation;
 	//Cook-Torrance BRDF

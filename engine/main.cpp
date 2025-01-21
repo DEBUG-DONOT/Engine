@@ -161,10 +161,10 @@ void DrawSphere()
 	//FragmentShader frag("./shaderLib/sampleBox.frag");
 	Shader shader(vert, frag);
 	Model model;
-	Light light(glm::vec3(-10, 10, 0), glm::vec3(0, 0, 0), glm::vec3(300, 300, 300));//light dir color
+	Light light(glm::vec3(-5, 10, 0), glm::vec3(0, 0, 0), glm::vec3(300, 300, 300));//light dir color
 	Camera camera(glm::vec3(0.0f, 40, 25), glm::vec3(0.0, 5, -1), glm::vec3(0, 1, 0));
 	Camera::SetMainCamera(&camera);
-	//glfwSetKeyCallback(window, Camera::CameraKeyDetection);//接收一个函数指针
+	glfwSetKeyCallback(window, Camera::CameraKeyDetection);//接收一个函数指针
 	//glfwSetCursorPosCallback(window, Camera::CameraMouseDetection);
 	Sphere sp;
 	glm::mat4 modelMatrix = glm::scale(glm::mat4(1.0), glm::vec3(0.3, 0.3, 0.3));
@@ -182,7 +182,7 @@ void DrawSphere()
 		ImGui::SliderFloat("metallic", &metallic, 0, 1);
 		// Rendering
 		// (Your code clears your framebuffer, renders your other stuff etc.)
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		shader.Bind();
 		shader.UpLoadUniformMat4("MVP", camera.GetMVP());
@@ -192,7 +192,7 @@ void DrawSphere()
 		shader.UpLoadUniformFloat3("eyePosition", camera.GetPosition());
 		shader.UpLoadUniformFloat("metallic", metallic);
 		shader.UpLoadUniformFloat("roughness", roughness);
-		shader.UpLoadUniformFloat3("albedo", glm::vec3(255, 0, 0));
+		shader.UpLoadUniformFloat3("albedo", glm::vec3(100, 0, 0));
 		sp.DrawPBR(shader);
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
