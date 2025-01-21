@@ -156,6 +156,13 @@ void DrawSphere()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		shader.Bind();
 		shader.UpLoadUniformMat4("MVP", camera.GetMVP());
+		shader.UpLoadUniformMat4("model", glm::mat4(1.0));
+		shader.UpLoadUniformFloat3("lightColor", glm::vec3(255, 200, 200));
+		shader.UpLoadUniformFloat3("lightPosition", light.GetPos());
+		shader.UpLoadUniformFloat3("eyePosition", camera.GetPosition());
+		shader.UpLoadUniformFloat("metallic", 0.0);
+		shader.UpLoadUniformFloat("roughness", 0.1);
+		shader.UpLoadUniformFloat3("albedo", glm::vec3(255, 0, 0));
 		sp.DrawPBR(shader);
 		glfwSwapBuffers(window);
 		glfwPollEvents();

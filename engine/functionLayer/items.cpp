@@ -126,20 +126,6 @@ Sphere::Sphere()
 {
     //generate values
     modle_ptr = make_shared<Model>();
-    //char cwd[_MAX_PATH];
-    //if (_getcwd(cwd, sizeof(cwd)) != NULL) {
-    //    std::cout << "Current working directory: " << cwd << std::endl;
-    //}
-    //else {
-    //    perror("_getcwd() error");
-    //}
-    //std::ifstream file("./Resource/sphere.glb");
-    //if (!file) {
-    //    std::cerr << "Error: Unable to open file " <<"../Resource/sphere.glb" << std::endl;
-    //}
-    //else {
-    //    std::cout << "File opened successfully." << std::endl;//对
-    //}
     modle_ptr->loadModel("./Resource/sphere.glb");
 }
 
