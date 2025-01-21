@@ -3,7 +3,7 @@
 - [x] 一个box的类
 - [x] 实现一个Sphere的类 
 - [x] 实现球的PBR
-- [ ] 导入ImGUI实现有UI控制的球的PBR
+- [x] 导入ImGUI实现有UI控制的球的PBR
 - [ ] Shadow Map
 - [ ] 实现defered shading
 - [ ] 待IBL的PBR
@@ -106,4 +106,8 @@ mesh中的值存储在vertex类中，包含位置、法线、纹理坐标等。
 如果不清理GL_Color_BUffer_BIt, 那么屏幕就会一直保持第一帧的颜色，如果不清理GL_Depth_Bit,那么物体就会无法显示。
 
 它们就是默认的framebuffer的attachment。
+
+## GGX的粗糙度参数问题
+
+公式给出的$\alpha$应该就是粗糙度本身，但是由于迪士尼principle的建议，最好是将$\alpha$设置为$roughness$的平方，这样在$[0,1]$内可以获得更线性的表现。
 
