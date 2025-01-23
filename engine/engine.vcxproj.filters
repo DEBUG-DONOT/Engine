@@ -109,5 +109,6 @@
     <None Include="shaderLib\triangle.frag" />
     <None Include="shaderLib\BoxPBR.vert" />
     <None Include="shaderLib\BoxPBR.frag" />
+    <None Include="shaderLib\BoxPBRtex.frag" />
   </ItemGroup>
 </Project>

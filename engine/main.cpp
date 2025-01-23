@@ -33,8 +33,8 @@ void gun()
 	model.showAllLoadedTexture();
 
 	SingleTexure albedo("./Resource/pbr/Textures/Cerberus_A.tga");
-	SingleTexure metallic("./Resource/pbr/Textures/Cerberus_M.tga");
 	SingleTexure normal("./Resource/pbr/Textures/Cerberus_N.tga");
+	SingleTexure metallic("./Resource/pbr/Textures/Cerberus_M.tga");
 	SingleTexure roughness("./Resource/pbr/Textures/Cerberus_R.tga");
 	SingleTexure ao("./Resource/pbr/Textures/Raw/Cerberus_AO.tga");
 
@@ -157,19 +157,31 @@ void DrawSphere()
 	ImGui_ImplOpenGL3_Init();
 
 	VertexShader vert("./shaderLib/BoxPBR.vert");
-	FragmentShader frag("./shaderLib/BoxPBR.frag");
+	//FragmentShader frag("./shaderLib/BoxPBR.frag");
+	FragmentShader frag("./shaderLib/BoxPBRtex.frag");
+	//FragmentShader frag("./shaderLib/sampleBoxPBRtex.frag");
 	//FragmentShader frag("./shaderLib/sampleBox.frag");
 	Shader shader(vert, frag);
 	Model model;
-	Light light(glm::vec3(-5, 10, 0), glm::vec3(0, 0, 0), glm::vec3(300, 300, 300));//light dir color
-	Camera camera(glm::vec3(0.0f, 40, 25), glm::vec3(0.0, 5, -1), glm::vec3(0, 1, 0));
+	Light light(glm::vec3(15, 15, 0), glm::vec3(0, 0, 0), glm::vec3(150, 150, 150));//light dir color
+	Camera camera(glm::vec3(0.0f, 0, 10), glm::vec3(0.0, 0, -1), glm::vec3(0, 1, 0));
 	Camera::SetMainCamera(&camera);
 	glfwSetKeyCallback(window, Camera::CameraKeyDetection);//接收一个函数指针
-	//glfwSetCursorPosCallback(window, Camera::CameraMouseDetection);
+	glfwSetCursorPosCallback(window, Camera::CameraMouseDetection);
 	Sphere sp;
 	glm::mat4 modelMatrix = glm::scale(glm::mat4(1.0), glm::vec3(0.3, 0.3, 0.3));
 	camera.SetModel(modelMatrix);
 	float roughness = 0, metallic = 0;
+	SingleTexure albedo_map("./Resource/sphereTexture/rustediron2_basecolor.png");
+	SingleTexure normal_map("./Resource/sphereTexture/rustediron2_normal.png");
+	SingleTexure metallic_map("./Resource/sphereTexture/rustediron2_metallic.png");
+	SingleTexure roughness_map("./Resource/sphereTexture/rustediron2_roughness.png");
+	shader.Bind();
+	
+	shader.UpLoadUniformInt("albedoMap", albedo_map.texture_id);//告诉OpenGL每个着色器采样器属于哪个纹理单元
+	shader.UpLoadUniformInt("normalMap", normal_map.texture_id);
+	shader.UpLoadUniformInt("metallicMap", metallic_map.texture_id);
+	shader.UpLoadUniformInt("roughnessMap",roughness_map.texture_id);
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
@@ -178,8 +190,8 @@ void DrawSphere()
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 		//ImGui::ShowDemoWindow(); // Show demo window! :)
-		ImGui::SliderFloat("roughtness", &roughness, 0, 1);
-		ImGui::SliderFloat("metallic", &metallic, 0, 1);
+		//ImGui::SliderFloat("roughtness", &roughness, 0, 1);
+		//ImGui::SliderFloat("metallic", &metallic, 0, 1);
 		// Rendering
 		// (Your code clears your framebuffer, renders your other stuff etc.)
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
@@ -190,9 +202,19 @@ void DrawSphere()
 		shader.UpLoadUniformFloat3("lightColor", glm::vec3(300, 300, 300));
 		shader.UpLoadUniformFloat3("lightPosition", light.GetPos());
 		shader.UpLoadUniformFloat3("eyePosition", camera.GetPosition());
-		shader.UpLoadUniformFloat("metallic", metallic);
-		shader.UpLoadUniformFloat("roughness", roughness);
-		shader.UpLoadUniformFloat3("albedo", glm::vec3(100, 0, 0));
+		//shader.UpLoadUniformFloat("metallic", metallic);
+		//shader.UpLoadUniformFloat("roughness", roughness);
+		//shader.UpLoadUniformFloat3("albedo", glm::vec3(100, 0, 0));
+		
+		//using texture
+		glActiveTexture(GL_TEXTURE0+albedo_map.texture_id);
+		albedo_map.bind();
+		glActiveTexture(GL_TEXTURE0 + normal_map.texture_id);
+		normal_map.bind();
+		glActiveTexture(GL_TEXTURE0 + metallic_map.texture_id);
+		metallic_map.bind();
+		glActiveTexture(GL_TEXTURE0 + roughness_map.texture_id);
+		roughness_map.bind();
 		sp.DrawPBR(shader);
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

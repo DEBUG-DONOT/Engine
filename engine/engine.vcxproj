@@ -161,6 +161,7 @@
     <None Include="shaderLib\box.vert" />
     <None Include="shaderLib\BoxPBR.frag" />
     <None Include="shaderLib\BoxPBR.vert" />
+    <None Include="shaderLib\BoxPBRtex.frag" />
     <None Include="shaderLib\BPFrag.frag" />
     <None Include="shaderLib\BPVertex.vert" />
     <None Include="shaderLib\PBRF.frag" />
