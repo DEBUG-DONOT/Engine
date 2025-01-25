@@ -1,6 +1,6 @@
 #include"Init.h"
 #include<iostream>
-void Initialization::GLFWInitialization(int width, int high, const char* name)
+void Initialization::GLFWInitialization(unsigned int width, unsigned int high, const char* name)
 {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);//设置版本

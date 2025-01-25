@@ -134,6 +134,8 @@
     <ClCompile Include="functionLayer\items.cpp" />
     <ClCompile Include="functionLayer\Light.cpp" />
     <ClCompile Include="functionLayer\MeshComponent.cpp" />
+    <ClCompile Include="functionLayer\Shadow.cpp" />
+    <ClCompile Include="GeneralData.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ResourceLayer\mesh.cpp" />
     <ClCompile Include="ResourceLayer\model.cpp" />
@@ -150,6 +152,8 @@
     <ClInclude Include="functionLayer\Light.h" />
     <ClInclude Include="functionLayer\MeshComponent.h" />
     <ClInclude Include="functionLayer\Render.h" />
+    <ClInclude Include="functionLayer\Shadow.h" />
+    <ClInclude Include="GeneralData.h" />
     <ClInclude Include="ResourceLayer\mesh.h" />
     <ClInclude Include="ResourceLayer\model.h" />
     <ClInclude Include="ResourceLayer\ResourceLayer.h" />
@@ -166,8 +170,12 @@
     <None Include="shaderLib\BPVertex.vert" />
     <None Include="shaderLib\PBRF.frag" />
     <None Include="shaderLib\PBRV.vert" />
+    <None Include="shaderLib\sampleBox.frag" />
+    <None Include="shaderLib\sampleBoxPBRtex.frag" />
     <None Include="shaderLib\samplePBR.frag" />
     <None Include="shaderLib\samplePBR.vert" />
+    <None Include="shaderLib\shadow.frag" />
+    <None Include="shaderLib\shadow.vert" />
     <None Include="shaderLib\triangle.frag" />
     <None Include="shaderLib\triangle.vert" />
   </ItemGroup>

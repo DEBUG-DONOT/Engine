@@ -4,8 +4,11 @@
 class Initialization
 {
 public:
-	void GLFWInitialization(int width = 1600, int high = 900, const char* name = "OpenGlWindow");
+
+	void GLFWInitialization(unsigned int width , unsigned int hight, const char* name = "OpenGlWindow");
 	void GammaCorrectionControl(bool flga);
 	GLFWwindow* window=nullptr;
+private:
+	int m_width, m_heigh;
 };
 

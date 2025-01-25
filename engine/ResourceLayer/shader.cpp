@@ -9,6 +9,7 @@ Shader::Shader(VertexShader vs, FragmentShader fs)
 	// Read our shaders into the appropriate buffers
 	std::string vertexSource = vs.GetCode(); // Get source code for vertex shader.
 	std::string fragmentSource = fs.GetCode(); // Get source code for fragment shader.
+	vsCode = vertexSource; fsCode = fragmentSource;
 	// Create an empty vertex shader handle
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	// Send the vertex shader source code to GL
@@ -100,7 +101,11 @@ Shader::Shader(VertexShader vs, FragmentShader fs)
 	glDetachShader(this->mShaderID, fragmentShader);
 }
 
-
+Shader::Shader(std::string vs, std::string fs)
+	:Shader(VertexShader(vs),FragmentShader(fs))
+{
+	
+}
 
 Shader::~Shader()
 {
@@ -138,7 +143,7 @@ void BasicShader::ReadCodeFromFile(std::string path)
 	}
 	catch (std::ifstream::failure e)
 	{
-		std::cout << path << "fail to transfer the glsl src file" << std::endl;
+		std::cout << path << "fail to transfer the glsl src file,fail to read file" << std::endl;
 	}
 	 code=SrcCode;
 }
@@ -153,6 +158,7 @@ void Shader::UpLoadUniformMat4(const std::string& name, const glm::mat4& m_matri
 	int location = glGetUniformLocation(mShaderID, name.c_str());
 	if (location == -1)
 	{
+		//assert(location != -1);
 		std::cout << "up load mat4 fail!" << name << std::endl;
 	}
 	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(m_matrix));
@@ -221,5 +227,13 @@ void Shader::UpLoadUniformFloat4(const std::string& name, const glm::vec4& m_vec
 		std::cout << "up load float4 fail!" << name << std::endl;
 	}
 	glUniform4f(location, m_vec3.x, m_vec3.y, m_vec3.z, m_vec3.w);
+}
+
+void Shader::PrintAllSourceCode()
+{
+	std::cout << "------------vertex source code----------" << std::endl;
+	std::cout << vsCode << std::endl;
+	std::cout << "------------fragment source code----------" << std::endl;
+	std::cout << fsCode << std::endl;
 }
 

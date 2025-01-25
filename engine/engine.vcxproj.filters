@@ -51,6 +51,12 @@
     <ClCompile Include="functionLayer\items.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="functionLayer\Shadow.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneralData.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="functionLayer\Component.h">
@@ -95,6 +101,12 @@
     <ClInclude Include="functionLayer\items.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="functionLayer\Shadow.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneralData.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaderLib\BPFrag.frag" />
@@ -110,5 +122,9 @@
     <None Include="shaderLib\BoxPBR.vert" />
     <None Include="shaderLib\BoxPBR.frag" />
     <None Include="shaderLib\BoxPBRtex.frag" />
+    <None Include="shaderLib\shadow.vert" />
+    <None Include="shaderLib\shadow.frag" />
+    <None Include="shaderLib\sampleBoxPBRtex.frag" />
+    <None Include="shaderLib\sampleBox.frag" />
   </ItemGroup>
 </Project>

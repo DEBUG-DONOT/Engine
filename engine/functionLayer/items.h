@@ -41,3 +41,11 @@ public:
 	Circle();
 	~Circle();
 };
+
+class Quad
+{
+public :
+	Quad();
+	void Draw(Shader& shader);
+	unsigned int VBO, VAO, EBO;
+};

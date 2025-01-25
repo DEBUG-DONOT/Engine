@@ -17,7 +17,7 @@ public:
 	static void SetMainCamera(Camera* cam) { MainCamera = cam; }
 private:
 	static Camera* MainCamera;
-	float aspect = 16.0 / 9.0, fov = glm::radians(45.0), near = 0.1, far = 100.0f;
+	float aspect = 16.0f / 9.0f, fov = glm::radians(45.0f), near = 0.1f, far = 100.0f;
 	static float speed;
 	glm::vec3 _position, _lookAt, _up, cameraFront, cameraUp, cameraRight;
 	glm::mat4 model, view, projection;
