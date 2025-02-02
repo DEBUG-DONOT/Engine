@@ -343,18 +343,19 @@ void ShadowPass()
 	Triangle tri;
 	Quad quad;
 	Sphere sp,sp1;
-	//VertexShader t_vert("./shaderLib/triangle.vert");
-	//FragmentShader t_frag("./shaderLib/triangle.frag");
-	//Shader t_shader(t_vert, t_frag);//最后渲染quad使用这个
 	Shader quadShader("./shaderLib/quadTex.vert", "./shaderLib/quadTex.frag");
 	Shader simpleShader("./shaderLib/simple.vert", "./shaderLib/simple.frag");
-	Light light(glm::vec3(0, 0, 50), glm::vec3(0, 0, -1), glm::vec3(100, 150, 200));//light dir color
+	Light light(glm::vec3(2, 1, 50), glm::vec3(0, 0, -1), glm::vec3(100, 150, 200));//light dir color
 	Camera camera(glm::vec3(0.0f, 0, 50), glm::vec3(0.0, 0, -1), glm::vec3(0, 1, 0));
 	Camera::SetMainCamera(&camera);
-	//glfwSetKeyCallback(window, Camera::CameraKeyDetection);//接收一个函数指针
-	//glfwSetCursorPosCallback(window, Camera::CameraMouseDetection);
+	glfwSetKeyCallback(window, Camera::CameraKeyDetection);//接收一个函数指针
+	glfwSetCursorPosCallback(window, Camera::CameraMouseDetection);
 	Shader shadowShader("./shaderLib/shadow.vert", "./shaderLib/shadow.frag");
+	Shader shader1("./shaderLib/BoxPBR.vert", "./shaderLib/BoxPBR.frag");
 	//create FBO& texture
+	{
+
+	}
 	unsigned int shadowMapTextureID, shadowMapFBO;
 	glGenFramebuffers(1, &shadowMapFBO);//生成FBO
 	//生成depth buffer attachment
@@ -377,24 +378,10 @@ void ShadowPass()
 
 	glm::mat4 modelMatrix = glm::scale(glm::mat4(1.0), glm::vec3(0.3, 0.3, 0.3));
 	glm::mat4 modelMatrix2 = glm::scale(glm::mat4(1.0), glm::vec3(0.5, 0.5, 0.5));
-	modelMatrix2 = glm::translate(glm::mat4(1.0), glm::vec3(0, -10, 0));
-
+	modelMatrix2 = glm::translate(glm::mat4(1.0), glm::vec3(3, -10, 0));
+	float metallic = 0.0f, roughness = 0.0f;
 	while (!glfwWindowShouldClose(window))
 	{
-		//render pass
-		{
-			//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			//glClearColor(0.2f, 0.3f, 0.5f, 1.0f);
-			//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			////use another frame buffer
-			//simpleShader.Bind();
-			//simpleShader.UpLoadUniformMat4("model", modelMatrix);
-			//simpleShader.UpLoadUniformMat4("view", camera.GetView());
-			//simpleShader.UpLoadUniformMat4("projection", camera.GetProjection());
-			//sp.DrawPBR(simpleShader);
-			//simpleShader.UpLoadUniformMat4("model", modelMatrix2);
-			//sp1.DrawPBR(simpleShader);
-		}
 		//shadow pass
 		{
 			glEnable(GL_DEPTH_TEST);
@@ -413,19 +400,42 @@ void ShadowPass()
 			sp.DrawPBR(shadowShader);
 			shadowShader.UpLoadUniformMat4("model", modelMatrix2);
 			sp1.DrawPBR(shadowShader);
-
 		}
 		
+		//render pass
+		{
+			//use default frame buffer
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			glClearColor(0.2f, 0.3f, 0.5f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			//render
+			camera.SetModel(modelMatrix);
+			shader1.Bind();
+			shader1.UpLoadUniformMat4("MVP", camera.GetMVP());
+			shader1.UpLoadUniformMat4("model", modelMatrix);
+			shader1.UpLoadUniformFloat3("lightColor", glm::vec3(300, 300, 300));
+			shader1.UpLoadUniformFloat3("lightPosition", light.GetPos());
+			shader1.UpLoadUniformFloat3("eyePosition", camera.GetPosition());
+			shader1.UpLoadUniformFloat("metallic", metallic);
+			shader1.UpLoadUniformFloat("roughness", roughness);
+			shader1.UpLoadUniformFloat3("albedo", glm::vec3(100, 50, 5));
+			sp.DrawPBR(shader1);
+			camera.SetModel(modelMatrix2);
+			shader1.UpLoadUniformMat4("MVP", camera.GetMVP());
+			shader1.UpLoadUniformMat4("model", modelMatrix2);
+			sp1.DrawPBR(shader1);
+		}
+
 		//Draw quad
 		{
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			glDisable(GL_DEPTH_TEST);
-			glClearColor(1.0, 0.0, 0.0, 1.0);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			quadShader.Bind();
-			quadShader.UpLoadUniformFloat("near_plane", GeneralData::near);
-			quadShader.UpLoadUniformFloat("far_plane", GeneralData::far);
-			quad.Draw(quadShader);
+			//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			//glDisable(GL_DEPTH_TEST);
+			//glClearColor(1.0, 0.0, 0.0, 1.0);
+			//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			//quadShader.Bind();
+			//quadShader.UpLoadUniformFloat("near_plane", GeneralData::near);
+			//quadShader.UpLoadUniformFloat("far_plane", GeneralData::far);
+			//quad.Draw(quadShader);
 		}
 		//others
 		glfwPollEvents();
