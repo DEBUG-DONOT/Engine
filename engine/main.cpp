@@ -366,10 +366,6 @@ void ShadowPass()
 	glfwSetCursorPosCallback(window, Camera::CameraMouseDetection);
 	Shader shadowShader("./shaderLib/shadow.vert", "./shaderLib/shadow.frag");
 	Shader shader1("./shaderLib/BoxPBR.vert", "./shaderLib/BoxPBR.frag");
-	//create FBO& texture
-	{
-		
-	}
 	Shadow shadow(GeneralData::width,GeneralData::height,light);
 	//render loop
 	quadShader.UpLoadUniformInt("shadowMap", shadow.shadowMapTextureID);

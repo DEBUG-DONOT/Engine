@@ -14,19 +14,34 @@ uniform sampler2D shadowMap;
 
 float CalcuShadowFactor(vec4 lightSpacePos)
 {
-	vec3 projCoords = lightSpacePos.xyz/lightSpacePos.w;
+	vec3 projCoords = lightSpacePos.xyz/lightSpacePos.w;//进行透视除法
 	projCoords = projCoords * 0.5 + 0.5;
 	float currentDepth = projCoords.z;
+	if(currentDepth>1.0)//超出远平面就认为在阴影中
+		return 0.0;
 	float shadow = 0.0;
 	float closeDepth = texture(shadowMap, projCoords.xy).r;
 	float bias = 0.005;
-	//vec2 texelSize = 1.0/1024.0;
-	if(currentDepth > closeDepth+bias)
+//PCF
+	vec2 texelSize = 1.0/textureSize(shadowMap,0);
+	for(int x=-1;x<=1;++x)
 	{
-		shadow = 0.0;
+		for(int y=-1;y<=1;++y)
+		{
+			float pcfDepth = texture(shadowMap, projCoords.xy+vec2(x,y)*texelSize).r;
+			shadow += currentDepth-bias>pcfDepth?1.0:0.0;
+		}
 	}
-	else shadow = 1.0;
-	return shadow;
+	shadow/=9.0;
+	return 1.0-shadow;
+
+//original shadow mapping
+	// if(currentDepth > closeDepth+bias)
+	// {
+	// 	shadow = 0.0;
+	// }
+	// else shadow = 1.0;
+	// return shadow;
 }
 
 float PI = 3.14159265359;
