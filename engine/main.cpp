@@ -340,12 +340,26 @@ void ShadowPass()
 	//渲染一个和屏幕一样的quad
 	//测试一下普通的shadow shader的作用
 	auto* window = initializer.window;
-	Triangle tri;
+	//prepare imgui
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+	//io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // IF using Docking Branch
+	// Setup Platform/Renderer backends
+	ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
+	ImGui_ImplOpenGL3_Init();
+	////////////////////////////////////////////
 	Quad quad;
 	Sphere sp,sp1;
 	Shader quadShader("./shaderLib/quadTex.vert", "./shaderLib/quadTex.frag");
 	Shader simpleShader("./shaderLib/simple.vert", "./shaderLib/simple.frag");
 	Light light(glm::vec3(2, 1, 50), glm::vec3(0, 0, -1), glm::vec3(100, 150, 200));//light dir color
+	float near_plane = 0.1f, far_plane = 100.0f;
+	glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+	glm::mat4 lightView = glm::lookAt(light.GetPos(), glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+	glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 	Camera camera(glm::vec3(0.0f, 0, 50), glm::vec3(0.0, 0, -1), glm::vec3(0, 1, 0));
 	Camera::SetMainCamera(&camera);
 	glfwSetKeyCallback(window, Camera::CameraKeyDetection);//接收一个函数指针
@@ -354,8 +368,9 @@ void ShadowPass()
 	Shader shader1("./shaderLib/BoxPBR.vert", "./shaderLib/BoxPBR.frag");
 	//create FBO& texture
 	{
-
+		
 	}
+	Shadow shadow();
 	unsigned int shadowMapTextureID, shadowMapFBO;
 	glGenFramebuffers(1, &shadowMapFBO);//生成FBO
 	//生成depth buffer attachment
@@ -375,26 +390,31 @@ void ShadowPass()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);//释放
 	//render loop
 	quadShader.UpLoadUniformInt("shadowMap", shadowMapTextureID);
-
+	shader1.Bind();
+	shader1.UpLoadUniformInt("shadowMap", shadowMapTextureID);
+	shader1.UnBind();
 	glm::mat4 modelMatrix = glm::scale(glm::mat4(1.0), glm::vec3(0.3, 0.3, 0.3));
 	glm::mat4 modelMatrix2 = glm::scale(glm::mat4(1.0), glm::vec3(0.5, 0.5, 0.5));
-	modelMatrix2 = glm::translate(glm::mat4(1.0), glm::vec3(3, -10, 0));
+	modelMatrix2 = glm::translate(glm::mat4(1.0), glm::vec3(3, -10, -15));
 	float metallic = 0.0f, roughness = 0.0f;
+	bool showQuad = false;
 	while (!glfwWindowShouldClose(window))
 	{
+		glfwPollEvents();
 		//shadow pass
 		{
 			glEnable(GL_DEPTH_TEST);
 			//shadow pass
 			shadowShader.Bind();
+			glViewport(0, 0, GeneralData::width, GeneralData::height);
 			glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
 			glClear(GL_DEPTH_BUFFER_BIT);
 			////set matrix
-			glm::mat4 lightProjection = glm::ortho(GeneralData::left, GeneralData::right, GeneralData::bottom,
-			 GeneralData::top, GeneralData::near, GeneralData::far);
-			glm::mat4 lightView = glm::lookAt(light.GetPos(), 
-			light.GetPos() + light.GetDirection(), glm::vec3(0, 1, 0));
-			glm::mat4 lightSpaceMatrix = lightProjection * lightView;
+			//glm::mat4 lightProjection = glm::ortho(GeneralData::left, GeneralData::right, GeneralData::bottom,
+			 //GeneralData::top, GeneralData::near, GeneralData::far);
+			//glm::mat4 lightView = glm::lookAt(light.GetPos(), 
+			//light.GetPos() + light.GetDirection(), glm::vec3(0, 1, 0));
+			//glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 			shadowShader.UpLoadUniformMat4("lightSpaceMatrix", lightSpaceMatrix);
 			shadowShader.UpLoadUniformMat4("model", modelMatrix);
 			sp.DrawPBR(shadowShader);
@@ -406,6 +426,10 @@ void ShadowPass()
 		{
 			//use default frame buffer
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			ImGui_ImplOpenGL3_NewFrame();
+			ImGui_ImplGlfw_NewFrame();
+			ImGui::NewFrame();
+			ImGui::Checkbox("quad", &showQuad);
 			glClearColor(0.2f, 0.3f, 0.5f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			//render
@@ -419,6 +443,9 @@ void ShadowPass()
 			shader1.UpLoadUniformFloat("metallic", metallic);
 			shader1.UpLoadUniformFloat("roughness", roughness);
 			shader1.UpLoadUniformFloat3("albedo", glm::vec3(100, 50, 5));
+			shader1.UpLoadUniformMat4("lightSpaceMatrix", lightSpaceMatrix);
+			glActiveTexture(GL_TEXTURE0 + shadowMapTextureID);
+			glBindTexture(GL_TEXTURE_2D, shadowMapTextureID);
 			sp.DrawPBR(shader1);
 			camera.SetModel(modelMatrix2);
 			shader1.UpLoadUniformMat4("MVP", camera.GetMVP());
@@ -427,21 +454,27 @@ void ShadowPass()
 		}
 
 		//Draw quad
+		if(showQuad)
 		{
-			//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			//glDisable(GL_DEPTH_TEST);
-			//glClearColor(1.0, 0.0, 0.0, 1.0);
-			//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			//quadShader.Bind();
-			//quadShader.UpLoadUniformFloat("near_plane", GeneralData::near);
-			//quadShader.UpLoadUniformFloat("far_plane", GeneralData::far);
-			//quad.Draw(quadShader);
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			glDisable(GL_DEPTH_TEST);
+			glClearColor(1.0, 0.0, 0.0, 1.0);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			quadShader.Bind();
+			quadShader.UpLoadUniformFloat("near_plane", GeneralData::near);
+			quadShader.UpLoadUniformFloat("far_plane", GeneralData::far);
+			quad.Draw(quadShader);
 		}
 		//others
-		glfwPollEvents();
+		
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		glfwSwapBuffers(window);
 	}
 	glfwTerminate();
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
 }
 
 int main()

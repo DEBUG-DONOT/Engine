@@ -1,6 +1,7 @@
 #version 460 core
 in vec3 fragPosition;
 in vec3 fragNormal;
+in vec4 lightSpacePos;
 out vec4 FragColor;
 
 uniform vec3 lightColor;
@@ -9,6 +10,24 @@ uniform vec3 eyePosition;
 uniform float metallic;
 uniform float roughness;
 uniform vec3 albedo;
+uniform sampler2D shadowMap;
+
+float CalcuShadowFactor(vec4 lightSpacePos)
+{
+	vec3 projCoords = lightSpacePos.xyz/lightSpacePos.w;
+	projCoords = projCoords * 0.5 + 0.5;
+	float currentDepth = projCoords.z;
+	float shadow = 0.0;
+	float closeDepth = texture(shadowMap, projCoords.xy).r;
+	float bias = 0.005;
+	//vec2 texelSize = 1.0/1024.0;
+	if(currentDepth > closeDepth+bias)
+	{
+		shadow = 0.0;
+	}
+	else shadow = 1.0;
+	return shadow;
+}
 
 float PI = 3.14159265359;
 vec3 Frenel(vec3 h,vec3 v,vec3 F0)
@@ -68,6 +87,12 @@ void main()
 	vec3 KSColor=F*G*NDF/(4.0*max(dot(n,v),0.0)*max(dot(n,l),0.0)+0.000001);
 	//KD+KS表示BRDF，也就是对于radiance有多少光出射，所以这里可以用对应相乘
 	vec3 color=(kD*kDColor+KSColor)*ndotl*radiance;
+	//shadow
+	color*=CalcuShadowFactor(lightSpacePos);
+	//if(CalcuShadowFactor(lightSpacePos)==0.0)
+	//{
+	//	color=vec3(1.0,0.0,0.0);
+	//}
 	//ambient
 	vec3 ambient=albedo*0.03;
 	color+=ambient;
