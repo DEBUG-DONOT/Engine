@@ -370,28 +370,11 @@ void ShadowPass()
 	{
 		
 	}
-	Shadow shadow();
-	unsigned int shadowMapTextureID, shadowMapFBO;
-	glGenFramebuffers(1, &shadowMapFBO);//生成FBO
-	//生成depth buffer attachment
-	glGenTextures(1, &shadowMapTextureID);
-	glBindTexture(GL_TEXTURE_2D, shadowMapTextureID);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
-		GeneralData::width, GeneralData::height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	//把生成的纹理作为frambuffer的depth buffer
-	glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMapTextureID, 0);
-	glDrawBuffer(GL_NONE);
-	glReadBuffer(GL_NONE);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);//释放
+	Shadow shadow(GeneralData::width,GeneralData::height,light);
 	//render loop
-	quadShader.UpLoadUniformInt("shadowMap", shadowMapTextureID);
+	quadShader.UpLoadUniformInt("shadowMap", shadow.shadowMapTextureID);
 	shader1.Bind();
-	shader1.UpLoadUniformInt("shadowMap", shadowMapTextureID);
+	shader1.UpLoadUniformInt("shadowMap", shadow.shadowMapTextureID);
 	shader1.UnBind();
 	glm::mat4 modelMatrix = glm::scale(glm::mat4(1.0), glm::vec3(0.3, 0.3, 0.3));
 	glm::mat4 modelMatrix2 = glm::scale(glm::mat4(1.0), glm::vec3(0.5, 0.5, 0.5));
@@ -407,14 +390,8 @@ void ShadowPass()
 			//shadow pass
 			shadowShader.Bind();
 			glViewport(0, 0, GeneralData::width, GeneralData::height);
-			glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
+			glBindFramebuffer(GL_FRAMEBUFFER, shadow.shadowMapFBO);
 			glClear(GL_DEPTH_BUFFER_BIT);
-			////set matrix
-			//glm::mat4 lightProjection = glm::ortho(GeneralData::left, GeneralData::right, GeneralData::bottom,
-			 //GeneralData::top, GeneralData::near, GeneralData::far);
-			//glm::mat4 lightView = glm::lookAt(light.GetPos(), 
-			//light.GetPos() + light.GetDirection(), glm::vec3(0, 1, 0));
-			//glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 			shadowShader.UpLoadUniformMat4("lightSpaceMatrix", lightSpaceMatrix);
 			shadowShader.UpLoadUniformMat4("model", modelMatrix);
 			sp.DrawPBR(shadowShader);
@@ -444,8 +421,8 @@ void ShadowPass()
 			shader1.UpLoadUniformFloat("roughness", roughness);
 			shader1.UpLoadUniformFloat3("albedo", glm::vec3(100, 50, 5));
 			shader1.UpLoadUniformMat4("lightSpaceMatrix", lightSpaceMatrix);
-			glActiveTexture(GL_TEXTURE0 + shadowMapTextureID);
-			glBindTexture(GL_TEXTURE_2D, shadowMapTextureID);
+			glActiveTexture(GL_TEXTURE0 + shadow.shadowMapTextureID);
+			glBindTexture(GL_TEXTURE_2D, shadow.shadowMapTextureID);
 			sp.DrawPBR(shader1);
 			camera.SetModel(modelMatrix2);
 			shader1.UpLoadUniformMat4("MVP", camera.GetMVP());

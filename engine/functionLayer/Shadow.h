@@ -10,9 +10,9 @@ class Shadow
 	//输入光源位置，生成一个光源角度的z-buffer的texture
 public:
 	Shadow(unsigned int width,unsigned int height,Light& _light);
-	void DrawPrepare(Shader& shadowShader);
+	//void DrawPrepare(Shader& shadowShader);
 	//std::shared_ptr<Shader> shadowShader;
-	static Shader shadowShader;
+	//static Shader shadowShader;
 	unsigned int width, height;
 	unsigned int shadowMapTextureID,shadowMapFBO;
 private:

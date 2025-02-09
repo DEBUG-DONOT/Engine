@@ -27,21 +27,7 @@ Shadow::Shadow(unsigned int width, unsigned int height,  Light& _light)
 }
 
 
-void Shadow::DrawPrepare(Shader& shadowShader)
-{
-	//绘制shadow map
-	//shadowShader.Bind();
-	//glViewport(0, 0, width, height);
-	//glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
-	//glClear(GL_DEPTH_BUFFER_BIT);
-	////set matrix
-	//glm::mat4 lightProjection = glm::ortho(GeneralData::left, GeneralData::right, GeneralData::bottom,
-	// GeneralData::top, GeneralData::near, GeneralData::far);
-	//glm::mat4 lightView = glm::lookAt(light.GetPos(), 
-	//light.GetPos() + light.GetDirection(), glm::vec3(0, 1, 0));
-	//glm::mat4 lightSpaceMatrix = lightProjection * lightView;
-	//shadowShader.UpLoadUniformMat4("lightSpaceMatrix", lightSpaceMatrix);
-}
+
 
 
 
