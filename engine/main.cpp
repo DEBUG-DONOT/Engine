@@ -355,7 +355,7 @@ void ShadowPass()
 	Sphere sp,sp1;
 	Shader quadShader("./shaderLib/quadTex.vert", "./shaderLib/quadTex.frag");
 	Shader simpleShader("./shaderLib/simple.vert", "./shaderLib/simple.frag");
-	Light light(glm::vec3(2, 1, 50), glm::vec3(0, 0, -1), glm::vec3(100, 150, 200));//light dir color
+	Light light(glm::vec3(2, 1, 40), glm::vec3(0, 0, -1), glm::vec3(100, 150, 200));//light dir color
 	float near_plane = 0.1f, far_plane = 100.0f;
 	glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
 	glm::mat4 lightView = glm::lookAt(light.GetPos(), glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
@@ -374,7 +374,7 @@ void ShadowPass()
 	shader1.UnBind();
 	glm::mat4 modelMatrix = glm::scale(glm::mat4(1.0), glm::vec3(0.3, 0.3, 0.3));
 	glm::mat4 modelMatrix2 = glm::scale(glm::mat4(1.0), glm::vec3(0.5, 0.5, 0.5));
-	modelMatrix2 = glm::translate(glm::mat4(1.0), glm::vec3(3, -10, -15));
+	modelMatrix2 = glm::translate(glm::mat4(1.0), glm::vec3(3, -10, -18));
 	float metallic = 0.0f, roughness = 0.0f;
 	bool showQuad = false;
 	while (!glfwWindowShouldClose(window))

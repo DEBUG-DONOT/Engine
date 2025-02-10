@@ -4,7 +4,7 @@
 - [x] 实现一个Sphere的类 
 - [x] 实现球的PBR
 - [x] 导入ImGUI实现有UI控制的球的PBR
-- [ ] Shadow Map
+- [ ] Shadow Map PCF PCSS
 - [ ] 实现defered shading
 - [ ] 带IBL的PBR
 - [ ] SSAO
@@ -37,6 +37,9 @@
 我们知道，实际上shadwo map本身和场景是怎么样的关系不大，shadow map需要的是光源的位置，我们在一个和屏幕相同大小的depth buffer上记录从光源出发看到的最浅深度，并把它作为一个attachment放在一个framebuffer object上。
 
 这是可以单独抽象出来作为一个类的。
+### PCF
+我们可以明显的看到PCF相比于原来的Shadow Mapping有了明显的模糊效果。
+
 
 # ResourceLayer
 

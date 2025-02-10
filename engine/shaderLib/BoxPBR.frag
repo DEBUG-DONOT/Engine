@@ -12,7 +12,7 @@ uniform float roughness;
 uniform vec3 albedo;
 uniform sampler2D shadowMap;
 
-float CalcuShadowFactor(vec4 lightSpacePos)
+float CalcuShadowFactor(vec4 lightSpacePos)//lightSpacePos是从光源视角下的片元位置
 {
 	vec3 projCoords = lightSpacePos.xyz/lightSpacePos.w;//进行透视除法
 	projCoords = projCoords * 0.5 + 0.5;
@@ -20,21 +20,21 @@ float CalcuShadowFactor(vec4 lightSpacePos)
 	if(currentDepth>1.0)//超出远平面就认为在阴影中
 		return 0.0;
 	float shadow = 0.0;
-	float closeDepth = texture(shadowMap, projCoords.xy).r;
 	float bias = 0.005;
-//PCF
-	vec2 texelSize = 1.0/textureSize(shadowMap,0);
-	for(int x=-1;x<=1;++x)
-	{
-		for(int y=-1;y<=1;++y)
-		{
-			float pcfDepth = texture(shadowMap, projCoords.xy+vec2(x,y)*texelSize).r;
-			shadow += currentDepth-bias>pcfDepth?1.0:0.0;
-		}
-	}
-	shadow/=9.0;
-	return 1.0-shadow;
-
+//////////////////////PCF&ShadowMapping//////////////////////
+// 	float closeDepth = texture(shadowMap, projCoords.xy).r;
+// //PCF
+// 	vec2 texelSize = 1.0/textureSize(shadowMap,0);
+// 	for(int x=-1;x<=1;++x)
+// 	{
+// 		for(int y=-1;y<=1;++y)
+// 		{
+// 			float pcfDepth = texture(shadowMap, projCoords.xy+vec2(x,y)*texelSize).r;
+// 			shadow += currentDepth-bias>pcfDepth?1.0:0.0;
+// 		}
+// 	}
+// 	shadow/=9.0;
+// 	return 1.0-shadow;
 //original shadow mapping
 	// if(currentDepth > closeDepth+bias)
 	// {
@@ -42,6 +42,46 @@ float CalcuShadowFactor(vec4 lightSpacePos)
 	// }
 	// else shadow = 1.0;
 	// return shadow;
+///////////////PCF&ShadowMapping//////////////////////
+
+//PCSS
+	//search reigion
+	//在3*3的区域内搜索
+	float w_light=50.0;
+	vec2 texelSize = 1.0/textureSize(shadowMap,0);
+	float d_Blocker=0.0;
+	for(int x=-3;x<=3;++x)
+	{
+		for(int y=-3;y<=3;++y)
+		{
+			float nearDepth = texture(shadowMap, projCoords.xy+vec2(x,y)*texelSize).r;//0到1之内到深度值
+			if(currentDepth>nearDepth+bias)
+			{
+				shadow+=1.0;
+				d_Blocker+=nearDepth;
+			}
+		}
+	}
+	if(shadow==0.0)//没有阴影，
+		return 1.0;
+	d_Blocker/=shadow;
+	shadow=0.0;
+	//float d_Receiver=distance(lightPosition,fragPosition);//world space distance
+	float d_Receiver=projCoords.z;
+	//calculate penumbra
+	int w_penumra=int((max(d_Receiver-d_Blocker,0.0)/d_Blocker)*w_light);
+	w_penumra=max(0,min(w_penumra,5));
+	//search PCF
+	for(int x=-w_penumra;x<=w_penumra;++x)
+	{
+		for(int y=-w_penumra;y<=w_penumra;++y)
+		{
+			float pcfDepth = texture(shadowMap, projCoords.xy+vec2(x,y)*texelSize).r;
+			shadow += currentDepth-bias>pcfDepth?1.0:0.0;
+		}
+	}
+	float result = max(0.0, (shadow / float((2 * w_penumra + 1) * (2 * w_penumra + 1))));
+	return 1.0-result;
 }
 
 float PI = 3.14159265359;
