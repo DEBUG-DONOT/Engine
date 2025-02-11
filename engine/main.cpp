@@ -353,30 +353,44 @@ void ShadowPass()
 	////////////////////////////////////////////
 	Quad quad;
 	Sphere sp,sp1;
+	Model model;
+	model.loadModel("./Resource/shenhe/shenhe.pmx");
 	Shader quadShader("./shaderLib/quadTex.vert", "./shaderLib/quadTex.frag");
 	Shader simpleShader("./shaderLib/simple.vert", "./shaderLib/simple.frag");
-	Light light(glm::vec3(2, 1, 40), glm::vec3(0, 0, -1), glm::vec3(100, 150, 200));//light dir color
+	
+	Light light(glm::vec3(2, 12, 40), glm::vec3(0, 0, -10), glm::vec3(100, 150, 200));//light dir color
 	float near_plane = 0.1f, far_plane = 100.0f;
 	glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-	glm::mat4 lightView = glm::lookAt(light.GetPos(), glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+	glm::mat4 lightView = glm::lookAt(light.GetPos(), light.GetDirection(), glm::vec3(0.0, 1.0, 0.0));
 	glm::mat4 lightSpaceMatrix = lightProjection * lightView;
-	Camera camera(glm::vec3(0.0f, 0, 50), glm::vec3(0.0, 0, -1), glm::vec3(0, 1, 0));
+
+
+	Camera camera(glm::vec3(5.0f, 5, 50), glm::vec3(0.0, 0, -1), glm::vec3(0, 1, 0));
 	Camera::SetMainCamera(&camera);
+	
 	glfwSetKeyCallback(window, Camera::CameraKeyDetection);//接收一个函数指针
-	glfwSetCursorPosCallback(window, Camera::CameraMouseDetection);
+	//glfwSetCursorPosCallback(window, Camera::CameraMouseDetection);
+	
 	Shader shadowShader("./shaderLib/shadow.vert", "./shaderLib/shadow.frag");
 	Shader shader1("./shaderLib/BoxPBR.vert", "./shaderLib/BoxPBR.frag");
 	Shadow shadow(GeneralData::width,GeneralData::height,light);
+	
 	//render loop
 	quadShader.UpLoadUniformInt("shadowMap", shadow.shadowMapTextureID);
 	shader1.Bind();
 	shader1.UpLoadUniformInt("shadowMap", shadow.shadowMapTextureID);
 	shader1.UnBind();
-	glm::mat4 modelMatrix = glm::scale(glm::mat4(1.0), glm::vec3(0.3, 0.3, 0.3));
-	glm::mat4 modelMatrix2 = glm::scale(glm::mat4(1.0), glm::vec3(0.5, 0.5, 0.5));
-	modelMatrix2 = glm::translate(glm::mat4(1.0), glm::vec3(3, -10, -18));
+
+
+	glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(0, -2, 30));
+	modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5, 0.5, 0.5));
+
+	glm::mat4 modelMatrix2 = glm::scale(glm::mat4(1.0), glm::vec3(5, 0.2, 3));
+	modelMatrix2 = glm::translate(modelMatrix2, glm::vec3(3, -3, -3));
 	float metallic = 0.0f, roughness = 0.0f;
 	bool showQuad = false;
+
+
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
@@ -390,9 +404,11 @@ void ShadowPass()
 			glClear(GL_DEPTH_BUFFER_BIT);
 			shadowShader.UpLoadUniformMat4("lightSpaceMatrix", lightSpaceMatrix);
 			shadowShader.UpLoadUniformMat4("model", modelMatrix);
-			sp.DrawPBR(shadowShader);
+			//sp.DrawPBR(shadowShader);
+			model.DrawPBR(shadowShader);
 			shadowShader.UpLoadUniformMat4("model", modelMatrix2);
 			sp1.DrawPBR(shadowShader);
+			
 		}
 		
 		//render pass
@@ -410,7 +426,7 @@ void ShadowPass()
 			shader1.Bind();
 			shader1.UpLoadUniformMat4("MVP", camera.GetMVP());
 			shader1.UpLoadUniformMat4("model", modelMatrix);
-			shader1.UpLoadUniformFloat3("lightColor", glm::vec3(300, 300, 300));
+			shader1.UpLoadUniformFloat3("lightColor", glm::vec3(200, 200, 200));
 			shader1.UpLoadUniformFloat3("lightPosition", light.GetPos());
 			shader1.UpLoadUniformFloat3("eyePosition", camera.GetPosition());
 			shader1.UpLoadUniformFloat("metallic", metallic);
@@ -419,11 +435,14 @@ void ShadowPass()
 			shader1.UpLoadUniformMat4("lightSpaceMatrix", lightSpaceMatrix);
 			glActiveTexture(GL_TEXTURE0 + shadow.shadowMapTextureID);
 			glBindTexture(GL_TEXTURE_2D, shadow.shadowMapTextureID);
-			sp.DrawPBR(shader1);
+			//sp.DrawPBR(shader1);
+			model.DrawPBR(shader1);
 			camera.SetModel(modelMatrix2);
+			shader1.UpLoadUniformFloat3("albedo", glm::vec3(50, 50, 50));
 			shader1.UpLoadUniformMat4("MVP", camera.GetMVP());
 			shader1.UpLoadUniformMat4("model", modelMatrix2);
 			sp1.DrawPBR(shader1);
+			
 		}
 
 		//Draw quad

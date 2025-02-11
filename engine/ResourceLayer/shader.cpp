@@ -48,7 +48,7 @@ Shader::Shader(VertexShader vs, FragmentShader fs)
 	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &isCompiled);
 	if (isCompiled == GL_FALSE)
 	{
-		GLint maxLength = 0;
+		GLint maxLength = 0;  
 		glGetShaderiv(fragmentShader, GL_INFO_LOG_LENGTH, &maxLength);
 		// The maxLength includes the NULL character
 		std::vector<GLchar> infoLog(maxLength);

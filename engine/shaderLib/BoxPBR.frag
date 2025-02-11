@@ -20,20 +20,21 @@ float CalcuShadowFactor(vec4 lightSpacePos)//lightSpacePos是从光源视角下�
 	if(currentDepth>1.0)//超出远平面就认为在阴影中
 		return 0.0;
 	float shadow = 0.0;
-	float bias = 0.005;
+	float bias = 0.002;
 //////////////////////PCF&ShadowMapping//////////////////////
 // 	float closeDepth = texture(shadowMap, projCoords.xy).r;
 // //PCF
 // 	vec2 texelSize = 1.0/textureSize(shadowMap,0);
-// 	for(int x=-1;x<=1;++x)
+// 	int pcfSearchRigoin=2;
+// 	for(int x=-pcfSearchRigoin;x<=pcfSearchRigoin;++x)
 // 	{
-// 		for(int y=-1;y<=1;++y)
+// 		for(int y=-pcfSearchRigoin;y<=pcfSearchRigoin;++y)
 // 		{
 // 			float pcfDepth = texture(shadowMap, projCoords.xy+vec2(x,y)*texelSize).r;
 // 			shadow += currentDepth-bias>pcfDepth?1.0:0.0;
 // 		}
 // 	}
-// 	shadow/=9.0;
+// 	shadow/=(2*pcfSearchRigoin+1)*(2*pcfSearchRigoin+1);
 // 	return 1.0-shadow;
 //original shadow mapping
 	// if(currentDepth > closeDepth+bias)
@@ -48,14 +49,15 @@ float CalcuShadowFactor(vec4 lightSpacePos)//lightSpacePos是从光源视角下�
 	//search reigion
 	//在3*3的区域内搜索
 	float w_light=50.0;
-	vec2 texelSize = 1.0/textureSize(shadowMap,0);
+	vec2 texelSize = 1.0/textureSize(shadowMap,0);//得到纹理的一个像素大小
 	float d_Blocker=0.0;
-	for(int x=-3;x<=3;++x)
+	int searchRegion=8;
+	for(int x=-searchRegion;x<=searchRegion;++x)
 	{
-		for(int y=-3;y<=3;++y)
+		for(int y=-searchRegion;y<=searchRegion;++y)
 		{
 			float nearDepth = texture(shadowMap, projCoords.xy+vec2(x,y)*texelSize).r;//0到1之内到深度值
-			if(currentDepth>nearDepth+bias)
+			if(currentDepth>nearDepth+bias)//如果当前位置在这个点后面，也就是在阴影中
 			{
 				shadow+=1.0;
 				d_Blocker+=nearDepth;
@@ -70,7 +72,7 @@ float CalcuShadowFactor(vec4 lightSpacePos)//lightSpacePos是从光源视角下�
 	float d_Receiver=projCoords.z;
 	//calculate penumbra
 	int w_penumra=int((max(d_Receiver-d_Blocker,0.0)/d_Blocker)*w_light);
-	w_penumra=max(0,min(w_penumra,5));
+	w_penumra=max(0,min(w_penumra,10)); //可能就是这里导致我的阴影不够软
 	//search PCF
 	for(int x=-w_penumra;x<=w_penumra;++x)
 	{
