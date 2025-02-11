@@ -40,11 +40,11 @@
 
 ### PCF&PCSS
 
-我们可以明显的看到，相对于pcf，pcss在袖口处有比较明显的软阴影效果。![pcss](.\engine\Resource\readmeImage\pcss.png)
+我们可以明显的看到，相对于pcf，pcss在袖口处有比较明显的软阴影效果。![pcss](./engine/Resource/readmeImage/pcss.png)
 
 pcss
 
-![pcf](.\engine\Resource\readmeImage\pcf.png)
+![pcf](./engine/Resource/readmeImage/pcf.png)
 
 pcf
 
