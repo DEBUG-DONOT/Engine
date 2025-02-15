@@ -15,7 +15,7 @@ uniform vec3 albedo;
 
 void main()
 {
-    gPosition = vec4(fragPosition,roughness);
+    gPosition = vec4(fragPosition,roughness);//世界坐标
     gAlbedoSpec=vec4(albedo,metallic);
     gNormal = normalize(fragNormal);
 }

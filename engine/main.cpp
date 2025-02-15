@@ -431,7 +431,7 @@ void ShadowPass()
 			shader1.UpLoadUniformFloat3("eyePosition", camera.GetPosition());
 			shader1.UpLoadUniformFloat("metallic", metallic);
 			shader1.UpLoadUniformFloat("roughness", roughness);
-			shader1.UpLoadUniformFloat3("albedo", glm::vec3(100, 50, 5));
+			shader1.UpLoadUniformFloat3("albedo", glm::vec3(1.0, 0.5, 0));
 			shader1.UpLoadUniformMat4("lightSpaceMatrix", lightSpaceMatrix);
 			glActiveTexture(GL_TEXTURE0 + shadow.shadowMapTextureID);
 			glBindTexture(GL_TEXTURE_2D, shadow.shadowMapTextureID);
@@ -479,8 +479,12 @@ void DeferedShading()
 	Camera camera(glm::vec3(5.0f, 5, 50), glm::vec3(0.0, 0, -1), glm::vec3(0, 1, 0));
 	Camera::SetMainCamera(&camera);
 	glfwSetKeyCallback(window, Camera::CameraKeyDetection);//接收一个函数指针
-	glfwSetCursorPosCallback(window, Camera::CameraMouseDetection);
-	Light light(glm::vec3(2, 15, 30), glm::vec3(0, 0, -10), glm::vec3(200, 200, 200));//light dir color
+	//glfwSetCursorPosCallback(window, Camera::CameraMouseDetection);
+	Light light(glm::vec3(2, 12, 40), glm::vec3(0, 0, -10), glm::vec3(100, 150, 200));//light dir color
+	float near_plane = 0.1f, far_plane = 100.0f;
+	glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+	glm::mat4 lightView = glm::lookAt(light.GetPos(), light.GetDirection(), glm::vec3(0.0, 1.0, 0.0));
+	glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 	//加载模型
 	Quad quad;//第二个pass用于渲染的quad
 	Model model;model.loadModel("./Resource/shenhe/shenhe.pmx");
@@ -494,46 +498,52 @@ void DeferedShading()
 	GLuint gBuffer,gPosition,gNormal,gAlbedoSpec,gDepth;
 	glGenFramebuffers(1, &gBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
-		//position color buffer pos+roughness vec4
-		glGenTextures(1, &gPosition);
-		glBindTexture(GL_TEXTURE_2D, gPosition);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, GeneralData::width, GeneralData::height, 
-			0, GL_RGBA, GL_FLOAT, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gPosition, 0);
-		//albedo color buffer albedo+metallic vec4
-		glGenTextures(1, &gAlbedoSpec);
-		glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GeneralData::width, GeneralData::height, 
-			0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gAlbedoSpec, 0);
-		//normal color buffer vec3
-		glGenTextures(1, &gNormal);
-		glBindTexture(GL_TEXTURE_2D, gNormal);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, GeneralData::width, GeneralData::height, 
-			0, GL_RGB, GL_FLOAT, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gNormal, 0);
+
+	//position color buffer pos+roughness vec4
+	glGenTextures(1, &gPosition);
+	glBindTexture(GL_TEXTURE_2D, gPosition);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, GeneralData::width, GeneralData::height, 
+		0, GL_RGBA, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gPosition, 0);
+
+	//albedo color buffer albedo+metallic vec4
+	glGenTextures(1, &gAlbedoSpec);
+	glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, GeneralData::width, GeneralData::height, 
+		0, GL_RGBA, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gAlbedoSpec, 0);
+
+	//normal color buffer vec3
+	glGenTextures(1, &gNormal);
+	glBindTexture(GL_TEXTURE_2D, gNormal);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, GeneralData::width, GeneralData::height, 
+		0, GL_RGB, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gNormal, 0);
+
 	GLuint attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
 	glDrawBuffers(3, attachments);
-		//depth buffer
-		glGenTextures(1, &gDepth);
-		glBindTexture(GL_TEXTURE_2D, gDepth);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, GeneralData::width, GeneralData::height, 
-			0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, gDepth, 0);
-
+	//depth buffer
+	glGenTextures(1, &gDepth);
+	glBindTexture(GL_TEXTURE_2D, gDepth);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, GeneralData::width, GeneralData::height, 
+		0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, gDepth, 0);
 
 	//设置shader
 	Shader gBufferShader("./shaderLib/Deferedfirst.vert", "./shaderLib/Deferedfirst.frag");
 	Shader quadShader("./shaderLib/quadTex.vert","./shaderLib/quadTex.frag");	
 	Shader quadDeferedPBR("./shaderLib/DeferedPBR.vert", "./shaderLib/DeferedPBR.frag");
+	Shader shadowShader("./shaderLib/shadow.vert", "./shaderLib/shadow.frag");
+	//设置shadow
+	Shadow shadow(GeneralData::width,GeneralData::height,light);
 	//设置纹理
 	quadShader.Bind();
 	quadShader.UpLoadUniformInt("texture1", GL_TEXTURE0);
@@ -542,11 +552,25 @@ void DeferedShading()
 	quadDeferedPBR.UpLoadUniformInt("texture1", 0);//sampler2D绑定到纹理单元
 	quadDeferedPBR.UpLoadUniformInt("texture2", 1);
 	quadDeferedPBR.UpLoadUniformInt("texture3", 2);
+	quadDeferedPBR.UpLoadUniformInt("shadowMap", 3);
+	quadDeferedPBR.UnBind();
 	//render loop
 	bool testQuad = false;
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
+		//shadow pass
+		{
+			glEnable(GL_DEPTH_TEST);
+			shadowShader.Bind();
+			glBindFramebuffer(GL_FRAMEBUFFER, shadow.shadowMapFBO);
+			glClear(GL_DEPTH_BUFFER_BIT);
+			shadowShader.UpLoadUniformMat4("lightSpaceMatrix", lightSpaceMatrix);	
+			shadowShader.UpLoadUniformMat4("model", modelMatrix);	
+			model.DrawPBR(shadowShader);
+			shadowShader.UpLoadUniformMat4("model", modelMatrix2);
+			sp.DrawPBR(shadowShader);
+		}
 		{
 			//G-Buffer pass
 			glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
@@ -557,15 +581,16 @@ void DeferedShading()
 			gBufferShader.Bind();
 			camera.SetModel(modelMatrix);
 			gBufferShader.UpLoadUniformMat4("MVP",camera.GetMVP());
-			gBufferShader.UpLoadUniformMat4("model", glm::mat4(1.0));
+			gBufferShader.UpLoadUniformMat4("model", modelMatrix);
 			gBufferShader.UpLoadUniformFloat("metallic", 0.0);
 			gBufferShader.UpLoadUniformFloat("roughness", 0.0);
-			gBufferShader.UpLoadUniformFloat3("albedo", glm::vec3(1, 0.5, 0.1));
+			gBufferShader.UpLoadUniformFloat3("albedo", glm::vec3(100, 50, 5));
 			model.DrawPBR(gBufferShader);
 
 			camera.SetModel(modelMatrix2);
-			gBufferShader.UpLoadUniformMat4("model", modelMatrix);
-			gBufferShader.UpLoadUniformFloat3("albedo", glm::vec3(0.5, 0.5, 0.1));
+			gBufferShader.UpLoadUniformMat4("model", modelMatrix2);
+			gBufferShader.UpLoadUniformMat4("MVP",camera.GetMVP());
+			gBufferShader.UpLoadUniformFloat3("albedo", glm::vec3(50, 50, 50));
 			sp.DrawPBR(gBufferShader);
 		}
 		//draw quad
@@ -591,9 +616,12 @@ void DeferedShading()
 				glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
 				glActiveTexture(GL_TEXTURE2);
 				glBindTexture(GL_TEXTURE_2D, gNormal);
-				quadDeferedPBR.UpLoadUniformFloat3("lightColor", light.GetColor());
+				glActiveTexture(GL_TEXTURE3);
+				glBindTexture(GL_TEXTURE_2D,shadow.shadowMapTextureID);
+				quadDeferedPBR.UpLoadUniformFloat3("lightColor", glm::vec3(200, 200, 200));
 				quadDeferedPBR.UpLoadUniformFloat3("lightPosition", light.GetPos());
 				quadDeferedPBR.UpLoadUniformFloat3("eyePosition", camera.GetPosition());
+				quadDeferedPBR.UpLoadUniformMat4("lightSpaceMatrix", lightSpaceMatrix);
 				quad.Draw(quadDeferedPBR);
 			}
 

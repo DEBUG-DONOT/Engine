@@ -5,7 +5,7 @@
 - [x] 实现球的PBR
 - [x] 导入ImGUI实现有UI控制的球的PBR
 - [x] Shadow Map PCF PCSS
-- [ ] 实现defered shading
+- [x] 实现defered shading
 - [ ] 带IBL的PBR
 - [ ] SSAO
 - [ ] FXAA
@@ -87,6 +87,10 @@ mesh中的值存储在vertex类中，包含位置、法线、纹理坐标等。
 
 对shader的一个优化：如果shader上传失败的话，会不停的重新尝试，打印非常多次的upload失败，我们加上一个变量控制这个问题。
 
+# 延迟着色
+
+
+
 # 碰到的问题
 
 开启深度测试之后没有清理 GL_DEPTH_BUFFER_BIT,导致画面上只有clear-color 的颜色。
@@ -146,3 +150,15 @@ glm::lookAt(pos,front+pos,up),我们的想法是实现按a和d的时候实现平
 
 而对于一个复杂的物体，它的$d_{blocker}$差距会比较大，我们知道，计算半影的面积公式为：$w_{Penumbra}=\frac{d_{Receiver}-d_{Blocker}}{d_{blocker}}\cdot w_{light}$,此时，半影的范围差距就会比较大，这就导致了在PCF是的范围差距比较大，从而导致阴影的颜色会有比较明显的差距。
 
+## HDR的纹理支持问题
+
+在延迟着色中，需要纹理来存储albedo，当albedo的取值超过1的时候我们需要切换纹理数据的存储格式来保证HDR颜色的正常显示，否则颜色会在1截断，导致显示的效果不好。
+
+我们应当使用
+
+```cpp
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, GeneralData::width, GeneralData::height, 
+		0, GL_RGBA, GL_FLOAT, NULL);
+```
+
+来存储。如果我们使用GL—RGBA和GL—UNSIGNED来存储，数值会在1截断。
