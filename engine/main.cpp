@@ -431,7 +431,7 @@ void ShadowPass()
 			shader1.UpLoadUniformFloat3("eyePosition", camera.GetPosition());
 			shader1.UpLoadUniformFloat("metallic", metallic);
 			shader1.UpLoadUniformFloat("roughness", roughness);
-			shader1.UpLoadUniformFloat3("albedo", glm::vec3(1.0, 0.5, 0));
+			shader1.UpLoadUniformFloat3("albedo", glm::vec3(100, 50, 5));
 			shader1.UpLoadUniformMat4("lightSpaceMatrix", lightSpaceMatrix);
 			glActiveTexture(GL_TEXTURE0 + shadow.shadowMapTextureID);
 			glBindTexture(GL_TEXTURE_2D, shadow.shadowMapTextureID);
@@ -469,12 +469,17 @@ void ShadowPass()
 	ImGui::DestroyContext();
 }
 
+float srgbToLinear(float c) 
+{
+    return c <= 0.04045 ? c / 12.92 : pow((c + 0.055) / 1.055, 2.4);
+}
 void DeferedShading()
 {
 	Initialization initializer;
 	initializer.GLFWInitialization(1920, 1080);//默认开启深度测试
 	auto* window = initializer.window;
-	
+	// 禁用 OpenGL 自动 sRGB 转换
+	glDisable(GL_FRAMEBUFFER_SRGB);
 	//场景设置
 	Camera camera(glm::vec3(5.0f, 5, 50), glm::vec3(0.0, 0, -1), glm::vec3(0, 1, 0));
 	Camera::SetMainCamera(&camera);
@@ -521,7 +526,7 @@ void DeferedShading()
 	glGenTextures(1, &gNormal);
 	glBindTexture(GL_TEXTURE_2D, gNormal);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, GeneralData::width, GeneralData::height, 
-		0, GL_RGB, GL_FLOAT, NULL);
+		0, GL_RGB, GL_FLOAT, NULL);//HDR，存储线性空间的颜色，opengl不会进行自动的srgb转换
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gNormal, 0);
@@ -575,8 +580,14 @@ void DeferedShading()
 			//G-Buffer pass
 			glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 			//glViewport(0, 0, GeneralData::width, GeneralData::height);
+			//GLuint attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+			//glDrawBuffers(3, attachments);
+		
 			glEnable(GL_DEPTH_TEST);
-			glClearColor(0.2f, 0.3f, 0.5f, 1.0);
+			glClearColor(srgbToLinear(0.2f), srgbToLinear(0.3f), srgbToLinear(0.5f), 1.0);
+			//glClearColor(0.2f, 0.3f, 0.5f, 1.0);
+			//glClearColor(pow(0.2f,1.0/2.2), pow(0.3f,1.0/2.2), pow(0.5f,1.0/2.2), 1.0);
+			//glClearColor(51, 76, 127, 255);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			gBufferShader.Bind();
 			camera.SetModel(modelMatrix);
@@ -597,7 +608,10 @@ void DeferedShading()
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			glDisable(GL_DEPTH_TEST);
-			glClearColor(0.2f, 0.3f, 0.5f, 1.0);
+			//glClearColor(0.2f, 0.3f, 0.5f, 1.0);
+			//glClearColor(51, 76.5, 127.5, 1.0);
+			//glClearColor(pow(0.2f,1.0/2.2), pow(0.3f,1.0/2.2), pow(0.5f,1.0/2.2), 1.0);
+			glClearColor(srgbToLinear(0.2f), srgbToLinear(0.3f), srgbToLinear(0.5f), 1.0);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			//glViewport(0, 0, GeneralData::width, GeneralData::height);
 			if(testQuad)
@@ -633,8 +647,8 @@ void DeferedShading()
 
 int main()
 {
-	DeferedShading();
-	//ShadowPass();
+	//DeferedShading();
+	ShadowPass();
 	//drawTriangle();
 }
 

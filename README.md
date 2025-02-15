@@ -89,7 +89,17 @@ mesh中的值存储在vertex类中，包含位置、法线、纹理坐标等。
 
 # 延迟着色
 
+![pcf](./engine/Resource/readmeImage/deferedShading.png)
 
+将管线调整为延迟渲染后得到的结果。
+
+我们能看到相比于原来的效果不同的地方是背景暗了。
+
+## 延迟渲染与阴影
+
+实际上我们还是执行和正向着色的shadow map一样的算法，我们首先还是执行shadow mapping 的pass，记录在一个texture，这个texure会在最后渲染quad的时候使用。
+
+因为G-Buffer记录了世界坐标，我们只需要在最后渲染quad的时候添加一个light space matrix就可以了。
 
 # 碰到的问题
 
