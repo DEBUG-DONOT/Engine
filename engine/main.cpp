@@ -480,7 +480,7 @@ void DeferedShading()
 	Camera::SetMainCamera(&camera);
 	glfwSetKeyCallback(window, Camera::CameraKeyDetection);//接收一个函数指针
 	//glfwSetCursorPosCallback(window, Camera::CameraMouseDetection);
-
+	Light light(glm::vec3(2, 15, 30), glm::vec3(0, 0, -10), glm::vec3(200, 200, 200));//light dir color
 	//加载模型
 	Quad quad;//第二个pass用于渲染的quad
 	Model model;model.loadModel("./Resource/shenhe/shenhe.pmx");
@@ -530,10 +530,15 @@ void DeferedShading()
 	//设置shader
 	Shader gBufferShader("./shaderLib/Deferedfirst.vert", "./shaderLib/Deferedfirst.frag");
 	Shader quadShader("./shaderLib/quadTex.vert","./shaderLib/quadTex.frag");	
-
+	Shader quadDeferedPBR("./shaderLib/DeferedPBR.vert", "./shaderLib/DeferedPBR.frag");
 	//设置纹理
-	quadShader.UpLoadUniformInt("texture1",GL_TEXTURE0);
+	// quadShader.Bind();
+	// quadShader.UpLoadUniformInt("texture1", GL_TEXTURE0);
 
+	quadDeferedPBR.Bind();
+	quadDeferedPBR.UpLoadUniformInt("texture1",0);
+	quadDeferedPBR.UpLoadUniformInt("texture2", 1);
+	quadDeferedPBR.UpLoadUniformInt("texture3", 2);
 	//render loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -542,26 +547,38 @@ void DeferedShading()
 			//G-Buffer pass
 			glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 			glEnable(GL_DEPTH_TEST);
-			glClearColor(0.0, 0.0, 0.0, 1.0);
+			glClearColor(0.2f, 0.3f, 0.5f, 1.0);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			gBufferShader.Bind();
 			gBufferShader.UpLoadUniformMat4("MVP",camera.GetMVP());
 			gBufferShader.UpLoadUniformMat4("model", glm::mat4(1.0));
-			gBufferShader.UpLoadUniformFloat("metallic", 0.0);
-			gBufferShader.UpLoadUniformFloat("roughness", 0.0);
-			gBufferShader.UpLoadUniformFloat3("albedo", glm::vec3(0.5, 0, 0));
-			model.Draw(gBufferShader);
+			gBufferShader.UpLoadUniformFloat("metallic", 1.0);
+			gBufferShader.UpLoadUniformFloat("roughness", 1.0);
+			gBufferShader.UpLoadUniformFloat3("albedo", glm::vec3(1, 0.5, 0.1));
+			model.DrawPBR(gBufferShader);
 		}
 		//draw quad
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			glDisable(GL_DEPTH_TEST);
-			glClearColor(1.0, 0.0, 0.0, 1.0);
+			glClearColor(0.2f, 0.3f, 0.5f, 1.0);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			quadShader.Bind();
+			// quadShader.Bind();
+			// glActiveTexture(GL_TEXTURE0);
+			// glBindTexture(GL_TEXTURE_2D, gNormal);
+			// quad.Draw(quadShader);
+
+			quadDeferedPBR.Bind();
 			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, gPosition);
+			glActiveTexture(GL_TEXTURE1);
 			glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
-			quad.Draw(quadShader);
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_2D, gNormal);
+			quadDeferedPBR.UpLoadUniformFloat3("lightColor", light.GetColor());
+			quadDeferedPBR.UpLoadUniformFloat3("lightPosition", light.GetPos());
+			quadDeferedPBR.UpLoadUniformFloat3("eyePosition", camera.GetPosition());
+			quad.Draw(quadDeferedPBR);
 		}
 		glfwSwapBuffers(window);
 	}
