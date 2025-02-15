@@ -5,6 +5,7 @@ uniform sampler2D texture1;
 uniform sampler2D texture2;
 uniform sampler2D texture3;
 uniform sampler2D shadowMap;
+uniform sampler2D gDepth;
 //这三个不随着fragment的位置变化而变化
 uniform vec3 lightColor;
 uniform vec3 lightPosition;
@@ -120,6 +121,14 @@ float Geometry(vec3 n,vec3 v,vec3 l,float roughness)
 void main()
 {
 	//从纹理中获取数据
+	// 检查深度值是否为背景（例如深度值 1.0）
+	float depth = texture(gDepth, TexCoords).r;
+	if (depth == 1.0) 
+	{
+    // 直接使用清除颜色或跳过光照计算
+    FragColor = vec4(0.2f, 0.3f, 0.5f, 1.0);
+    return;
+	}
 	vec3 fragPosition=texture(texture1, TexCoords).rgb;
 	float roughness=texture(texture1, TexCoords).a;
 	vec3 albedo=texture(texture2, TexCoords).rgb;

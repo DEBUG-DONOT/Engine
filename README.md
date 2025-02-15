@@ -95,6 +95,22 @@ mesh中的值存储在vertex类中，包含位置、法线、纹理坐标等。
 
 我们能看到相比于原来的效果不同的地方是背景暗了。
 
+背景变暗是因为我们最后使用了一个quad来覆盖整个屏幕，这个时候屏幕上所有的颜色都取决于这个quad，当我们在shader中加上这样的判断：
+
+```glsl
+// 检查深度值是否为背景（例如深度值 1.0）
+float depth = texture(gDepth, TexCoords).r;
+if (depth == 1.0) {
+    // 直接使用清除颜色或跳过光照计算
+    FragColor = vec4(clearColor, 1.0);
+    return;
+}
+```
+
+我们就能得到这样的结果：
+
+![pcf](./engine/Resource/readmeImage/deferedFinal.png)
+
 ## 延迟渲染与阴影
 
 实际上我们还是执行和正向着色的shadow map一样的算法，我们首先还是执行shadow mapping 的pass，记录在一个texture，这个texure会在最后渲染quad的时候使用。

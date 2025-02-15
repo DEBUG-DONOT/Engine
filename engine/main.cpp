@@ -479,7 +479,8 @@ void DeferedShading()
 	initializer.GLFWInitialization(1920, 1080);//默认开启深度测试
 	auto* window = initializer.window;
 	// 禁用 OpenGL 自动 sRGB 转换
-	glDisable(GL_FRAMEBUFFER_SRGB);
+	//glDisable(GL_FRAMEBUFFER_SRGB);
+	//glEnable(GL_FRAMEBUFFER_SRGB);
 	//场景设置
 	Camera camera(glm::vec3(5.0f, 5, 50), glm::vec3(0.0, 0, -1), glm::vec3(0, 1, 0));
 	Camera::SetMainCamera(&camera);
@@ -558,6 +559,7 @@ void DeferedShading()
 	quadDeferedPBR.UpLoadUniformInt("texture2", 1);
 	quadDeferedPBR.UpLoadUniformInt("texture3", 2);
 	quadDeferedPBR.UpLoadUniformInt("shadowMap", 3);
+	quadDeferedPBR.UpLoadUniformInt("gDepth", 4);
 	quadDeferedPBR.UnBind();
 	//render loop
 	bool testQuad = false;
@@ -584,8 +586,8 @@ void DeferedShading()
 			//glDrawBuffers(3, attachments);
 		
 			glEnable(GL_DEPTH_TEST);
-			glClearColor(srgbToLinear(0.2f), srgbToLinear(0.3f), srgbToLinear(0.5f), 1.0);
-			//glClearColor(0.2f, 0.3f, 0.5f, 1.0);
+			//glClearColor(srgbToLinear(0.2f), srgbToLinear(0.3f), srgbToLinear(0.5f), 1.0);
+			glClearColor(0.2f, 0.3f, 0.5f, 1.0);
 			//glClearColor(pow(0.2f,1.0/2.2), pow(0.3f,1.0/2.2), pow(0.5f,1.0/2.2), 1.0);
 			//glClearColor(51, 76, 127, 255);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -608,10 +610,10 @@ void DeferedShading()
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			glDisable(GL_DEPTH_TEST);
-			//glClearColor(0.2f, 0.3f, 0.5f, 1.0);
+			glClearColor(0.2f, 0.3f, 0.5f, 1.0);
 			//glClearColor(51, 76.5, 127.5, 1.0);
 			//glClearColor(pow(0.2f,1.0/2.2), pow(0.3f,1.0/2.2), pow(0.5f,1.0/2.2), 1.0);
-			glClearColor(srgbToLinear(0.2f), srgbToLinear(0.3f), srgbToLinear(0.5f), 1.0);
+			//glClearColor(srgbToLinear(0.2f), srgbToLinear(0.3f), srgbToLinear(0.5f), 1.0);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			//glViewport(0, 0, GeneralData::width, GeneralData::height);
 			if(testQuad)
@@ -632,13 +634,14 @@ void DeferedShading()
 				glBindTexture(GL_TEXTURE_2D, gNormal);
 				glActiveTexture(GL_TEXTURE3);
 				glBindTexture(GL_TEXTURE_2D,shadow.shadowMapTextureID);
+				glActiveTexture(GL_TEXTURE4);
+				glBindTexture(GL_TEXTURE_2D, gDepth);
 				quadDeferedPBR.UpLoadUniformFloat3("lightColor", glm::vec3(200, 200, 200));
 				quadDeferedPBR.UpLoadUniformFloat3("lightPosition", light.GetPos());
 				quadDeferedPBR.UpLoadUniformFloat3("eyePosition", camera.GetPosition());
 				quadDeferedPBR.UpLoadUniformMat4("lightSpaceMatrix", lightSpaceMatrix);
 				quad.Draw(quadDeferedPBR);
 			}
-
 		}
 		glfwSwapBuffers(window);
 	}
@@ -647,8 +650,8 @@ void DeferedShading()
 
 int main()
 {
-	//DeferedShading();
-	ShadowPass();
+	DeferedShading();
+	//ShadowPass();
 	//drawTriangle();
 }
 
