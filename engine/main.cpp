@@ -469,9 +469,109 @@ void ShadowPass()
 	ImGui::DestroyContext();
 }
 
+void DeferedShading()
+{
+	Initialization initializer;
+	initializer.GLFWInitialization(1920, 1080);//默认开启深度测试
+	auto* window = initializer.window;
+	
+	//场景设置
+	Camera camera(glm::vec3(5.0f, 5, 50), glm::vec3(0.0, 0, -1), glm::vec3(0, 1, 0));
+	Camera::SetMainCamera(&camera);
+	glfwSetKeyCallback(window, Camera::CameraKeyDetection);//接收一个函数指针
+	//glfwSetCursorPosCallback(window, Camera::CameraMouseDetection);
+
+	//加载模型
+	Quad quad;//第二个pass用于渲染的quad
+	Model model;model.loadModel("./Resource/shenhe/shenhe.pmx");
+	//模型modle matrix
+	glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(0, -2, 30));
+	modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5, 0.5, 0.5));
+	//设置G-Buffer
+	GLuint gBuffer,gPosition,gNormal,gAlbedoSpec,gDepth;
+	glGenFramebuffers(1, &gBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+		//position color buffer pos+roughness vec4
+		glGenTextures(1, &gPosition);
+		glBindTexture(GL_TEXTURE_2D, gPosition);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, GeneralData::width, GeneralData::height, 
+			0, GL_RGBA, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gPosition, 0);
+		//albedo color buffer albedo+metallic vec4
+		glGenTextures(1, &gAlbedoSpec);
+		glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GeneralData::width, GeneralData::height, 
+			0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gAlbedoSpec, 0);
+		//normal color buffer vec3
+		glGenTextures(1, &gNormal);
+		glBindTexture(GL_TEXTURE_2D, gNormal);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, GeneralData::width, GeneralData::height, 
+			0, GL_RGB, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gNormal, 0);
+	GLuint attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+	glDrawBuffers(3, attachments);
+		//depth buffer
+		glGenTextures(1, &gDepth);
+		glBindTexture(GL_TEXTURE_2D, gDepth);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, GeneralData::width, GeneralData::height, 
+			0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, gDepth, 0);
+
+
+	//设置shader
+	Shader gBufferShader("./shaderLib/Deferedfirst.vert", "./shaderLib/Deferedfirst.frag");
+	Shader quadShader("./shaderLib/quadTex.vert","./shaderLib/quadTex.frag");	
+
+	//设置纹理
+	quadShader.UpLoadUniformInt("texture1",GL_TEXTURE0);
+
+	//render loop
+	while (!glfwWindowShouldClose(window))
+	{
+		glfwPollEvents();
+		{
+			//G-Buffer pass
+			glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+			glEnable(GL_DEPTH_TEST);
+			glClearColor(0.0, 0.0, 0.0, 1.0);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			gBufferShader.Bind();
+			gBufferShader.UpLoadUniformMat4("MVP",camera.GetMVP());
+			gBufferShader.UpLoadUniformMat4("model", glm::mat4(1.0));
+			gBufferShader.UpLoadUniformFloat("metallic", 0.0);
+			gBufferShader.UpLoadUniformFloat("roughness", 0.0);
+			gBufferShader.UpLoadUniformFloat3("albedo", glm::vec3(0.5, 0, 0));
+			model.Draw(gBufferShader);
+		}
+		//draw quad
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			glDisable(GL_DEPTH_TEST);
+			glClearColor(1.0, 0.0, 0.0, 1.0);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			quadShader.Bind();
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+			quad.Draw(quadShader);
+		}
+		glfwSwapBuffers(window);
+	}
+	glfwTerminate();
+}
+
 int main()
 {
-	ShadowPass();
+	DeferedShading();
+	//ShadowPass();
 	//drawTriangle();
 }
 
