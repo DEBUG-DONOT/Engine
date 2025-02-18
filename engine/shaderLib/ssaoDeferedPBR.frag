@@ -175,10 +175,11 @@ void main()
 	color*=CalcuShadowFactor(lightSpacePos);
 	
 	//ambient
-	if(usingSSAO==1)
+	if(usingSSAO==0)
 	{
 		ao=1.0;
 	}
+	//else ao=texture(aoMap,TexCoords).r;
 	vec3 ambient=albedo*0.03*ao;
 	color+=ambient;
 	//gamma correction
@@ -186,4 +187,5 @@ void main()
 	color= pow(color,vec3(1.0/2.2));
 	FragColor=vec4(color,1.0);
 	//FragColor=vec4(1.0,0.5,0.5,1.0);
+
 }

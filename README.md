@@ -129,11 +129,17 @@ shadow+PBR 不使用SSAO：
 
 ![pcf](./engine/Resource/readmeImage/ssao.png)
 
+这里为了使SSAO的效果更加明显，将采样的半径设置为了10。
+
 我们可以看到，此时在几何体较为接近的位置，亮度变暗了。同时影子也变暗了。
 
 这是因为此时我们并没有调整环境光的系数，还是使用的0.03作为环境光系数。
 
+## blur
 
+![pcf](./engine/Resource/readmeImage/ssaoNoBlur.png)
+
+当我们没有使用blur的时候我们可以看到这样的效果。
 
 
 
@@ -208,3 +214,19 @@ glm::lookAt(pos,front+pos,up),我们的想法是实现按a和d的时候实现平
 ```
 
 来存储。如果我们使用GL—RGBA和GL—UNSIGNED来存储，数值会在1截断。
+
+## SSAO
+
+1. uniform 被优化，哪怕我们使用一个texture，但是只采样而没有使用，这个uniform还是会被优化掉。
+2. ssao效果不明显。 当radius设置为1的时候我们很难看出ssao的效果。
+
+```glsl
+float depthValue= texture(texture3, offset.xy).w;//??????? 为什么取负号？
+```
+
+这里不应该取负号。
+
+分析：应该从如何存储z值开始考虑。
+
+
+

@@ -38,6 +38,7 @@ class Shader
 public:
 	Shader(VertexShader vs,FragmentShader fs);
 	Shader(std::string vs,std::string fs);
+	inline void setName(const std::string& _name){name=_name;}
 	~Shader();
 	inline GLuint GetID() { return mShaderID; }
 	void Bind();
@@ -52,6 +53,7 @@ public:
 	void UpLoadUniformFloat4(const std::string& name, const glm::vec4& m_vec3);
 	void PrintAllSourceCode();
 private:
+	std::string name;
 	std::unordered_set<std::string> errorName;
 	GLuint mShaderID;
 	std::string vsCode, fsCode;

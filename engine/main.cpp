@@ -674,7 +674,8 @@ void SSAO()
 	//模型modle matrix
 	glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(0, -2, 30));
 	modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5, 0.5, 0.5));
-	glm::mat4 modelMatrix2 = glm::scale(glm::mat4(1.0), glm::vec3(5, 0.2, 3));
+
+	glm::mat4 modelMatrix2 = glm::scale(glm::mat4(1.0), glm::vec3(10, 10, 0.5));
 	modelMatrix2 = glm::translate(modelMatrix2, glm::vec3(3, -3, -3));
 	//设置G-Buffer
 	#pragma region G-Buffer
@@ -730,6 +731,7 @@ void SSAO()
 	Shader quadDeferedPBR("./shaderLib/ssaoDeferedPBR.vert", "./shaderLib/ssaoDeferedPBR.frag");
 	Shader shadowShader("./shaderLib/shadow.vert", "./shaderLib/shadow.frag");
 	Shader ssaoShader("./shaderLib/ssaoShader.vert", "./shaderLib/ssaoShader.frag");
+	ssaoShader.setName("ssaoShader");
 	#pragma endregion shader
 
 	#pragma region SSAO
@@ -791,7 +793,7 @@ void SSAO()
 	Shadow shadow(GeneralData::width,GeneralData::height,light);
 	//设置纹理
 	quadShader.Bind();
-	quadShader.UpLoadUniformInt("texture1", GL_TEXTURE0);
+	quadShader.UpLoadUniformInt("texture1", 6);
 	quadShader.UnBind();
 
 	quadDeferedPBR.Bind();
@@ -804,8 +806,8 @@ void SSAO()
 	quadDeferedPBR.UnBind();
 
 	ssaoShader.Bind();
-	ssaoShader.UpLoadUniformInt("texture1", 0);//sampler2D绑定到纹理单元
-	ssaoShader.UpLoadUniformInt("texture2", 1);
+	ssaoShader.UpLoadUniformInt("texture1", 0);
+	//ssaoShader.UpLoadUniformInt("texture2", 1);
 	ssaoShader.UpLoadUniformInt("texture3", 2);
 	ssaoShader.UpLoadUniformInt("noiseTexture", 5);
 	ssaoShader.UnBind();
@@ -833,15 +835,8 @@ void SSAO()
 		{
 			//G-Buffer pass
 			glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
-			//glViewport(0, 0, GeneralData::width, GeneralData::height);
-			//GLuint attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
-			//glDrawBuffers(3, attachments);
-		
 			glEnable(GL_DEPTH_TEST);
-			//glClearColor(srgbToLinear(0.2f), srgbToLinear(0.3f), srgbToLinear(0.5f), 1.0);
 			glClearColor(0.2f, 0.3f, 0.5f, 1.0);
-			//glClearColor(pow(0.2f,1.0/2.2), pow(0.3f,1.0/2.2), pow(0.5f,1.0/2.2), 1.0);
-			//glClearColor(51, 76, 127, 255);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			gBufferShader.Bind();
 			camera.SetModel(modelMatrix);
@@ -865,13 +860,16 @@ void SSAO()
 		//ssao
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, ssaoFBO);
+			//test 如果不draw，得到的结果
+			//glClearColor(0.0,0.0,0.0,1.0);
 			glClear(GL_COLOR_BUFFER_BIT);
+			glDisable(GL_DEPTH_TEST);
 			ssaoShader.Bind();
 			glActiveTexture(GL_TEXTURE0);//在绑定纹理之前先激活纹理单元 纹理单位就是GL_TEXTUREx这样的
 			glBindTexture(GL_TEXTURE_2D, gPosition);
 			
-			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+			//glActiveTexture(GL_TEXTURE1);
+			//glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
 			
 			glActiveTexture(GL_TEXTURE2);
 			glBindTexture(GL_TEXTURE_2D, gNormal);
@@ -881,6 +879,7 @@ void SSAO()
 			//samples
 			ssaoShader.UpLoadUniformFloat3Array("samples", ssaoKernel.data(),ssaoKernel.size());
 			ssaoShader.UpLoadUniformMat4("projection", camera.GetProjection());
+			quad.Draw(ssaoShader);
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 		//draw quad
@@ -896,8 +895,12 @@ void SSAO()
 			if(testQuad)
 			{
 				quadShader.Bind();
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, gNormal);
+				//glActiveTexture(GL_TEXTURE0);
+				//glBindTexture(GL_TEXTURE_2D, gNormal);
+				glActiveTexture(GL_TEXTURE6);
+				glBindTexture(GL_TEXTURE_2D,ssaoColorBuffer);
+				quadShader.UpLoadUniformFloat("near_plane",GeneralData::near);
+				quadShader.UpLoadUniformFloat("far_plane",GeneralData::far);
 				quad.Draw(quadShader);
 			}
 			else
@@ -906,6 +909,7 @@ void SSAO()
 				{
 					if(usingSSAO==1) usingSSAO=0;
 					else if(usingSSAO==0) usingSSAO=1;
+					//std::cout<<"press space"<<std::endl;
 				}
 				quadDeferedPBR.Bind();
 				glActiveTexture(GL_TEXTURE0);//在绑定纹理之前先激活纹理单元 纹理单位就是GL_TEXTUREx这样的

@@ -2,8 +2,8 @@
 out vec4 FragColor;
 in vec2 TexCoords;
 uniform sampler2D texture1;
-//uniform float near_plane;
-//uniform float far_plane;
+uniform float near_plane;
+uniform float far_plane;
 // float LinearizeDepth(float depth)
 // {
 //     float z = depth * 2.0 - 1.0; // Back to NDC 
@@ -13,7 +13,18 @@ void main()
 {
     //float depthValue = texture(shadowMap, TexCoords).r;
     //depthValue = LinearizeDepth(depthValue);
-    vec3 color = texture(texture1, TexCoords).rgb;
-    FragColor = vec4(color, 1.0f);
+    //vec3 color = texture(texture1, TexCoords).rgb;
+    //FragColor = vec4(color, 1.0f);
+    float color=texture(texture1,TexCoords).r;
+    if(color<0)
+    {
+        FragColor=vec4(1.0,0.0,0.0,1.0);
+    }
+    else
+    {
+        color=(color-near_plane)/(far_plane-near_plane);
+        FragColor=vec4(color,color,color,1.0);
+    }
+
     //FragColor = vec4(vec3(depthValue), 1.0f);
 } 

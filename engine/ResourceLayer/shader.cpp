@@ -183,7 +183,7 @@ void Shader::UpLoadUniformInt(const std::string& name, const int num)
 	{
 		if (errorName.find(name) == errorName.end())
 		{
-			std::cout <<this->mShaderID << "up load int fail!" << name << std::endl;
+			std::cout <<this->name<< ": up load int fail!" << name << std::endl;
 			errorName.insert(name);
 		}
 	}
