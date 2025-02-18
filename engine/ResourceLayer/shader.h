@@ -48,6 +48,7 @@ public:
 	void UpLoadUniformFloat(const std::string& name, const float num);
 	void UPLoadUniformFloat2(const std::string& name, const glm::vec2& m_vec2);
 	void UpLoadUniformFloat3(const std::string& name, const glm::vec3& m_vec3);
+	void UpLoadUniformFloat3Array(const std::string& name, const glm::vec3* m_vec3, int num);
 	void UpLoadUniformFloat4(const std::string& name, const glm::vec4& m_vec3);
 	void PrintAllSourceCode();
 private:

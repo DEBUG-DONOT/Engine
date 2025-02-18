@@ -111,11 +111,31 @@ if (depth == 1.0) {
 
 ![pcf](./engine/Resource/readmeImage/deferedFinal.png)
 
+使用数码测色器测量两个蓝色是一样的。
+
 ## 延迟渲染与阴影
 
 实际上我们还是执行和正向着色的shadow map一样的算法，我们首先还是执行shadow mapping 的pass，记录在一个texture，这个texure会在最后渲染quad的时候使用。
 
 因为G-Buffer记录了世界坐标，我们只需要在最后渲染quad的时候添加一个light space matrix就可以了。
+
+# SSAO
+
+shadow+PBR 不使用SSAO：
+
+![pcf](./engine/Resource/readmeImage/nossao.png)
+
+使用SSAO：
+
+![pcf](./engine/Resource/readmeImage/ssao.png)
+
+我们可以看到，此时在几何体较为接近的位置，亮度变暗了。同时影子也变暗了。
+
+这是因为此时我们并没有调整环境光的系数，还是使用的0.03作为环境光系数。
+
+
+
+
 
 # 碰到的问题
 

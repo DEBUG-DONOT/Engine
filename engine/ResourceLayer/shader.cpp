@@ -96,6 +96,7 @@ Shader::Shader(VertexShader vs, FragmentShader fs)
 		// In this simple program, we'll just leave
 		return;
 	}
+	std::cout<<"shader ID is"<<this->mShaderID<<std::endl;
 	// Always detach shaders after a successful link.
 	glDetachShader(this->mShaderID, vertexShader);
 	glDetachShader(this->mShaderID, fragmentShader);
@@ -182,7 +183,7 @@ void Shader::UpLoadUniformInt(const std::string& name, const int num)
 	{
 		if (errorName.find(name) == errorName.end())
 		{
-			std::cout << "up load int fail!" << name << std::endl;
+			std::cout <<this->mShaderID << "up load int fail!" << name << std::endl;
 			errorName.insert(name);
 		}
 	}
@@ -194,7 +195,7 @@ void Shader::UpLoadUniformFloat(const std::string& name, const float num)
 	int location = glGetUniformLocation(mShaderID, name.c_str());
 	if (location == -1)
 	{
-		std::cout << "up load int fail!" << name << std::endl;
+		std::cout << "up load float fail!" << name << std::endl;
 	}
 	glUniform1f(location, num);
 }
@@ -218,6 +219,17 @@ void Shader::UpLoadUniformFloat3(const std::string& name, const glm::vec3& m_vec
 	}
 	glUniform3f(location, m_vec3.x, m_vec3.y, m_vec3.z);
 }
+
+void Shader:: UpLoadUniformFloat3Array(const std::string& name, const glm::vec3* m_vec3, int num)
+{
+	int location = glGetUniformLocation(mShaderID, name.c_str());
+	if (location == -1)
+	{
+		std::cout << "up load float3 array fail!" << name << std::endl;
+	}
+	glUniform3fv(location, num, glm::value_ptr(m_vec3[0]));
+}
+
 
 void Shader::UpLoadUniformFloat4(const std::string& name, const glm::vec4& m_vec3)
 {

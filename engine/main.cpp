@@ -5,6 +5,7 @@
 #include<glm/gtc/matrix_transform.hpp>
 #include <fstream>
 #include <cmath>
+#include <random>
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -648,9 +649,301 @@ void DeferedShading()
 	glfwTerminate();
 }
 
+void SSAO()
+{
+	Initialization initializer;
+	initializer.GLFWInitialization(1920, 1080);//默认开启深度测试
+	auto* window = initializer.window;
+	// 禁用 OpenGL 自动 sRGB 转换
+	//glDisable(GL_FRAMEBUFFER_SRGB);
+	//glEnable(GL_FRAMEBUFFER_SRGB);
+	//场景设置
+	Camera camera(glm::vec3(5.0f, 5, 50), glm::vec3(0.0, 0, -1), glm::vec3(0, 1, 0));
+	Camera::SetMainCamera(&camera);
+	glfwSetKeyCallback(window, Camera::CameraKeyDetection);//接收一个函数指针
+	//glfwSetCursorPosCallback(window, Camera::CameraMouseDetection);
+	Light light(glm::vec3(2, 12, 40), glm::vec3(0, 0, -10), glm::vec3(100, 150, 200));//light dir color
+	float near_plane = 0.1f, far_plane = 100.0f;
+	glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+	glm::mat4 lightView = glm::lookAt(light.GetPos(), light.GetDirection(), glm::vec3(0.0, 1.0, 0.0));
+	glm::mat4 lightSpaceMatrix = lightProjection * lightView;
+	//加载模型
+	Quad quad;//第二个pass用于渲染的quad
+	Model model;model.loadModel("./Resource/shenhe/shenhe.pmx");
+	Sphere sp;
+	//模型modle matrix
+	glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(0, -2, 30));
+	modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5, 0.5, 0.5));
+	glm::mat4 modelMatrix2 = glm::scale(glm::mat4(1.0), glm::vec3(5, 0.2, 3));
+	modelMatrix2 = glm::translate(modelMatrix2, glm::vec3(3, -3, -3));
+	//设置G-Buffer
+	#pragma region G-Buffer
+	GLuint gBuffer,gPosition,gNormal,gAlbedoSpec,gDepth;
+	glGenFramebuffers(1, &gBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+
+	//position color buffer pos+roughness vec4
+	glGenTextures(1, &gPosition);
+	glBindTexture(GL_TEXTURE_2D, gPosition);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, GeneralData::width, GeneralData::height, 
+		0, GL_RGBA, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gPosition, 0);
+
+	//albedo color buffer albedo+metallic vec4
+	glGenTextures(1, &gAlbedoSpec);
+	glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, GeneralData::width, GeneralData::height, 
+		0, GL_RGBA, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gAlbedoSpec, 0);
+
+	//normal color buffer vec4 normal+ linear depth 
+	glGenTextures(1, &gNormal);
+	glBindTexture(GL_TEXTURE_2D, gNormal);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, GeneralData::width, GeneralData::height, 
+		0, GL_RGBA, GL_FLOAT, NULL);//HDR，存储线性空间的颜色，opengl不会进行自动的srgb转换
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gNormal, 0);
+
+	GLuint attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+	glDrawBuffers(3, attachments);
+	//depth buffer
+	glGenTextures(1, &gDepth);
+	glBindTexture(GL_TEXTURE_2D, gDepth);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, GeneralData::width, GeneralData::height, 
+		0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, gDepth, 0);
+	#pragma endregion G-Buffer
+
+	#pragma region shader
+	//设置shader
+	Shader gBufferShader("./shaderLib/ssaoDeferedfirst.vert", "./shaderLib/ssaoDeferedfirst.frag");
+	Shader quadShader("./shaderLib/quadTex.vert","./shaderLib/quadTex.frag");	
+	Shader quadDeferedPBR("./shaderLib/ssaoDeferedPBR.vert", "./shaderLib/ssaoDeferedPBR.frag");
+	Shader shadowShader("./shaderLib/shadow.vert", "./shaderLib/shadow.frag");
+	Shader ssaoShader("./shaderLib/ssaoShader.vert", "./shaderLib/ssaoShader.frag");
+	#pragma endregion shader
+
+	#pragma region SSAO
+	//生成法向半球的随机点
+	std::uniform_real_distribution<GLfloat> randomFloats(0.0, 1.0); // 随机浮点数，范围0.0 - 1.0
+	std::default_random_engine generator;
+	std::vector<glm::vec3> ssaoKernel;
+	for (GLuint i = 0; i < 64; ++i)
+	{
+    	glm::vec3 sample(
+        	randomFloats(generator) * 2.0 - 1.0, //范围-1.0 - 1.0 x
+        	randomFloats(generator) * 2.0 - 1.0, //范围-1.0 - 1.0 y
+        	randomFloats(generator)				 //范围0.0 - 1.0 z
+    	);
+    	sample = glm::normalize(sample);
+    	sample *= randomFloats(generator);
+    	GLfloat scale = GLfloat(i) / 64.0; 
+		auto lerp=[](float a,float b,float t)->GLfloat{return a+t*(b-a);};
+		scale = lerp(0.1f, 1.0f, scale * scale);
+		sample *= scale; //让点在半球内部更靠近原点
+    	ssaoKernel.push_back(sample);  
+	}
+	//生成noise
+	std::vector<glm::vec3> ssaoNoise;
+	for (GLuint i = 0; i < 16; i++)
+	{
+    	glm::vec3 noise(
+        	randomFloats(generator) * 2.0 - 1.0, 
+        	randomFloats(generator) * 2.0 - 1.0, 
+        	0.0f); //绕z轴旋转
+    	ssaoNoise.push_back(noise);
+	}
+	//创建噪声纹理存储噪声
+	GLuint noiseTexture; 
+	glGenTextures(1, &noiseTexture);
+	glBindTexture(GL_TEXTURE_2D, noiseTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, 4, 4, 0, GL_RGB, GL_FLOAT, &ssaoNoise[0]);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	//SSAO Framebuffer
+	GLuint ssaoFBO, ssaoBlurFBO;
+	glGenFramebuffers(1, &ssaoFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, ssaoFBO);
+	GLuint ssaoColorBuffer, ssaoColorBufferBlur;
+	glGenTextures(1, &ssaoColorBuffer);
+	glBindTexture(GL_TEXTURE_2D, ssaoColorBuffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, GeneralData::width, GeneralData::height, 0, GL_RED, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ssaoColorBuffer, 0);
+
+
+	#pragma endregion SSAO
+
+	//设置shadow
+	Shadow shadow(GeneralData::width,GeneralData::height,light);
+	//设置纹理
+	quadShader.Bind();
+	quadShader.UpLoadUniformInt("texture1", GL_TEXTURE0);
+	quadShader.UnBind();
+
+	quadDeferedPBR.Bind();
+	quadDeferedPBR.UpLoadUniformInt("texture1", 0);//sampler2D绑定到纹理单元
+	quadDeferedPBR.UpLoadUniformInt("texture2", 1);
+	quadDeferedPBR.UpLoadUniformInt("texture3", 2);
+	quadDeferedPBR.UpLoadUniformInt("shadowMap", 3);
+	quadDeferedPBR.UpLoadUniformInt("gDepth", 4);
+	quadDeferedPBR.UpLoadUniformInt("aoMap",6);
+	quadDeferedPBR.UnBind();
+
+	ssaoShader.Bind();
+	ssaoShader.UpLoadUniformInt("texture1", 0);//sampler2D绑定到纹理单元
+	ssaoShader.UpLoadUniformInt("texture2", 1);
+	ssaoShader.UpLoadUniformInt("texture3", 2);
+	ssaoShader.UpLoadUniformInt("noiseTexture", 5);
+	ssaoShader.UnBind();
+	//render loop
+	bool testQuad = false;
+
+	int usingSSAO=1;
+	while (!glfwWindowShouldClose(window))
+	{
+		glfwPollEvents();
+
+		//shadow pass
+		{
+			glEnable(GL_DEPTH_TEST);
+			shadowShader.Bind();
+			glBindFramebuffer(GL_FRAMEBUFFER, shadow.shadowMapFBO);
+			glClear(GL_DEPTH_BUFFER_BIT);
+			shadowShader.UpLoadUniformMat4("lightSpaceMatrix", lightSpaceMatrix);	
+			shadowShader.UpLoadUniformMat4("model", modelMatrix);	
+			model.DrawPBR(shadowShader);
+			shadowShader.UpLoadUniformMat4("model", modelMatrix2);
+			sp.DrawPBR(shadowShader);
+		}
+		
+		{
+			//G-Buffer pass
+			glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+			//glViewport(0, 0, GeneralData::width, GeneralData::height);
+			//GLuint attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+			//glDrawBuffers(3, attachments);
+		
+			glEnable(GL_DEPTH_TEST);
+			//glClearColor(srgbToLinear(0.2f), srgbToLinear(0.3f), srgbToLinear(0.5f), 1.0);
+			glClearColor(0.2f, 0.3f, 0.5f, 1.0);
+			//glClearColor(pow(0.2f,1.0/2.2), pow(0.3f,1.0/2.2), pow(0.5f,1.0/2.2), 1.0);
+			//glClearColor(51, 76, 127, 255);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			gBufferShader.Bind();
+			camera.SetModel(modelMatrix);
+			gBufferShader.UpLoadUniformMat4("MVP",camera.GetMVP());
+			gBufferShader.UpLoadUniformMat4("model", modelMatrix);
+			gBufferShader.UpLoadUniformFloat("metallic", 0.0);
+			gBufferShader.UpLoadUniformFloat("roughness", 0.0);
+			gBufferShader.UpLoadUniformFloat3("albedo", glm::vec3(100, 50, 5));
+			//for ssao depth
+			gBufferShader.UpLoadUniformFloat("NEAR", GeneralData::near);
+			gBufferShader.UpLoadUniformFloat("FAR", GeneralData::far);
+			model.DrawPBR(gBufferShader);
+
+			camera.SetModel(modelMatrix2);
+			gBufferShader.UpLoadUniformMat4("model", modelMatrix2);
+			gBufferShader.UpLoadUniformMat4("MVP",camera.GetMVP());
+			gBufferShader.UpLoadUniformFloat3("albedo", glm::vec3(50,50, 50));
+			sp.DrawPBR(gBufferShader);
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		}
+		//ssao
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, ssaoFBO);
+			glClear(GL_COLOR_BUFFER_BIT);
+			ssaoShader.Bind();
+			glActiveTexture(GL_TEXTURE0);//在绑定纹理之前先激活纹理单元 纹理单位就是GL_TEXTUREx这样的
+			glBindTexture(GL_TEXTURE_2D, gPosition);
+			
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+			
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_2D, gNormal);
+
+			glActiveTexture(GL_TEXTURE5);
+			glBindTexture(GL_TEXTURE_2D, noiseTexture);
+			//samples
+			ssaoShader.UpLoadUniformFloat3Array("samples", ssaoKernel.data(),ssaoKernel.size());
+			ssaoShader.UpLoadUniformMat4("projection", camera.GetProjection());
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		}
+		//draw quad
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			glDisable(GL_DEPTH_TEST);
+			glClearColor(0.2f, 0.3f, 0.5f, 1.0);
+			//glClearColor(51, 76.5, 127.5, 1.0);
+			//glClearColor(pow(0.2f,1.0/2.2), pow(0.3f,1.0/2.2), pow(0.5f,1.0/2.2), 1.0);
+			//glClearColor(srgbToLinear(0.2f), srgbToLinear(0.3f), srgbToLinear(0.5f), 1.0);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			//glViewport(0, 0, GeneralData::width, GeneralData::height);
+			if(testQuad)
+			{
+				quadShader.Bind();
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, gNormal);
+				quad.Draw(quadShader);
+			}
+			else
+			{
+				if(glfwGetKey(window,GLFW_KEY_SPACE))
+				{
+					if(usingSSAO==1) usingSSAO=0;
+					else if(usingSSAO==0) usingSSAO=1;
+				}
+				quadDeferedPBR.Bind();
+				glActiveTexture(GL_TEXTURE0);//在绑定纹理之前先激活纹理单元 纹理单位就是GL_TEXTUREx这样的
+				glBindTexture(GL_TEXTURE_2D, gPosition);
+				
+				glActiveTexture(GL_TEXTURE1);
+				glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+				
+				glActiveTexture(GL_TEXTURE2);
+				glBindTexture(GL_TEXTURE_2D, gNormal);
+				
+				glActiveTexture(GL_TEXTURE3);
+				glBindTexture(GL_TEXTURE_2D,shadow.shadowMapTextureID);
+				
+				glActiveTexture(GL_TEXTURE4);
+				glBindTexture(GL_TEXTURE_2D, gDepth);
+
+				glActiveTexture(GL_TEXTURE6);
+				glBindTexture(GL_TEXTURE_2D,ssaoColorBuffer);
+
+				quadDeferedPBR.UpLoadUniformFloat3("lightColor", glm::vec3(200, 200, 200));
+				quadDeferedPBR.UpLoadUniformFloat3("lightPosition", light.GetPos());
+				quadDeferedPBR.UpLoadUniformFloat3("eyePosition", camera.GetPosition());
+				quadDeferedPBR.UpLoadUniformMat4("lightSpaceMatrix", lightSpaceMatrix);
+				quadDeferedPBR.UpLoadUniformInt("usingSSAO",usingSSAO);
+				quad.Draw(quadDeferedPBR);
+			}
+		}
+		glfwSwapBuffers(window);
+	}
+	glfwTerminate();
+}
+
+
 int main()
 {
-	DeferedShading();
+	SSAO();
+	//DeferedShading();
 	//ShadowPass();
 	//drawTriangle();
 }
