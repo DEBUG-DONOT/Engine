@@ -25,6 +25,11 @@ void Initialization::GLFWInitialization(unsigned int width, unsigned int high, c
     glEnable(GL_DEPTH_TEST);//深度测试
     glDepthFunc(GL_LESS);
 
+    GLint maxTextureUnits;
+    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
+
+    std::cout << "Maximum texture image units: " << maxTextureUnits << std::endl;
+
 }
 
 void Initialization::GammaCorrectionControl(bool flag)

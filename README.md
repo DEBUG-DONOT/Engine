@@ -137,9 +137,19 @@ shadow+PBR 不使用SSAO：
 
 ## blur
 
+当我们使用ssao而此时ssao中并未实现blur效果：
+
 ![pcf](./engine/Resource/readmeImage/ssaoNoBlur.png)
 
-当我们没有使用blur的时候我们可以看到这样的效果。
+当我们添加在ssao的遮蔽因子计算之后添加blur：
+
+![pcf](./engine/Resource/readmeImage/ssaoBlur.png)
+
+我们可以看到此时就不再有明显的噪声纹理。
+
+
+
+
 
 
 

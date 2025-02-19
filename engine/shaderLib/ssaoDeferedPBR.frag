@@ -6,7 +6,8 @@ uniform sampler2D texture2;
 uniform sampler2D texture3;
 uniform sampler2D shadowMap;
 uniform sampler2D gDepth;
-uniform sampler2D aoMap;
+//uniform sampler2D aoMap;
+uniform sampler2D aoMapBlur;
 //这三个不随着fragment的位置变化而变化
 uniform vec3 lightColor;
 uniform vec3 lightPosition;
@@ -143,7 +144,8 @@ void main()
 
 	vec4 lightSpacePos=lightSpaceMatrix*vec4(fragPosition,1.0);
 
-	float ao=texture(aoMap,TexCoords).r;
+	//float ao=texture(aoMap,TexCoords).r;
+	float ao=texture(aoMapBlur,TexCoords).r;
 
 	//计算
 	vec3 v=normalize(eyePosition-fragPosition);
