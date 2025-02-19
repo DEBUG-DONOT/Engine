@@ -806,6 +806,7 @@ void SSAO()
 	quadShader.UpLoadUniformInt("texture1", 6);
 	quadShader.UnBind();
 
+	//quadDeferedPBR用于最后绘制遮蔽屏幕的图像。
 	quadDeferedPBR.Bind();
 	quadDeferedPBR.UpLoadUniformInt("texture1", 0);//sampler2D绑定到纹理单元
 	quadDeferedPBR.UpLoadUniformInt("texture2", 1);

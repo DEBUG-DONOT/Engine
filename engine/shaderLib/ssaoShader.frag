@@ -31,8 +31,11 @@ void main()
         float depthValue= texture(texture3, offset.xy).w;//??????? 为什么取负号？
         float rangeCheck = smoothstep(0.0, 1.0, radius / abs(m_fragPosition.z - depthValue));
         occlusion+= (depthValue>curr_sample.z? 1.0:0.0)*rangeCheck;
+        //occlusion+= (depthValue<=curr_sample.z? 1.0:0.0)*rangeCheck;
+
     }
     occlusion=1.0-(occlusion/kernelSize);
+    //occlusion=occlusion/kernelSize;
     FragColor=occlusion;
     //FragColor = vec4(1.0);
 }
