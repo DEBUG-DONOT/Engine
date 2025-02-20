@@ -17,7 +17,6 @@ uniform float NEAR ; // 投影矩阵的近平面
 uniform float FAR ; // 投影矩阵的远平面
 float LinearizeDepth(float depth)
 {
-    
     float z = depth * 2.0 - 1.0; // 回到NDC
     return (2.0 * NEAR * FAR) / (FAR + NEAR - z * (FAR - NEAR)); //应用投影矩阵的逆变换
     //输出的线性深度值在 [NEAR, FAR] 之间。

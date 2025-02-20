@@ -672,7 +672,7 @@ void SSAO()
 	Model model;model.loadModel("./Resource/shenhe/shenhe.pmx");
 	Sphere sp;
 	//模型modle matrix
-	glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(0, -2, 30));
+	glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(0, -2, 20));
 	modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5, 0.5, 0.5));
 
 	glm::mat4 modelMatrix2 = glm::scale(glm::mat4(1.0), glm::vec3(10, 10, 0.5));
@@ -889,6 +889,7 @@ void SSAO()
 			//samples
 			ssaoShader.UpLoadUniformFloat3Array("samples", ssaoKernel.data(),ssaoKernel.size());
 			ssaoShader.UpLoadUniformMat4("projection", camera.GetProjection());
+			ssaoShader.UpLoadUniformMat4("view",camera.GetView());
 			quad.Draw(ssaoShader);
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
@@ -912,12 +913,22 @@ void SSAO()
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			//glViewport(0, 0, GeneralData::width, GeneralData::height);
 
-				if(glfwGetKey(window,GLFW_KEY_SPACE))
-				{
-					if(usingSSAO==1) usingSSAO=0;
-					else if(usingSSAO==0) usingSSAO=1;
-					//std::cout<<"press space"<<std::endl;
+				// if(glfwGetKey(window,GLFW_KEY_SPACE))
+				// {
+				// 	if(usingSSAO==1) usingSSAO=0;
+				// 	else if(usingSSAO==0) usingSSAO=1;
+				// 	//std::cout<<"press space"<<std::endl;
+				// }
+				// 在循环外定义静态变量跟踪上一帧空格键状态
+				static int prevSpaceState = GLFW_RELEASE;
+
+				// 在循环内检测按键
+				int currentSpaceState = glfwGetKey(window, GLFW_KEY_SPACE);
+				if (currentSpaceState == GLFW_PRESS && prevSpaceState == GLFW_RELEASE) {
+				    usingSSAO ^= 1; // 使用位运算切换 0/1 状态
+				    // 或者 usingSSAO = 1 - usingSSAO; // 更直观的写法
 				}
+				prevSpaceState = currentSpaceState; // 更新状态
 				quadDeferedPBR.Bind();
 				glActiveTexture(GL_TEXTURE0);//在绑定纹理之前先激活纹理单元 纹理单位就是GL_TEXTUREx这样的
 				glBindTexture(GL_TEXTURE_2D, gPosition);

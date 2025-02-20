@@ -12,7 +12,7 @@ out vec2 TexCoord;
 void main()
 {
 	gl_Position=MVP*vec4(aPos,1.0);
-	fragPosition=vec3(model*vec4(aPos,1.0)).xyz;
+	fragPosition=vec3(model*vec4(aPos,1.0)).xyz;//在view space
 	TexCoord=aTexCoord;
 	fragNormal=mat3(transpose(inverse(model)))*aNormal;
 	//lightSpacePos=(lightSpaceMatrix*vec4(fragPosition,1.0));
