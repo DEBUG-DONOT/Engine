@@ -7,7 +7,7 @@
 - [x] Shadow Map PCF PCSS
 - [x] 实现defered shading
 - [ ] 带IBL的PBR
-- [ ] SSAO
+- [x] SSAO
 - [ ] FXAA
 
 # 结构

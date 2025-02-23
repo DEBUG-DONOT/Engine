@@ -107,7 +107,7 @@ Shader::Shader(std::string vs, std::string fs)
 {
 	
 }
-
+ 
 Shader::~Shader()
 {
 	glDeleteProgram(this->mShaderID);
