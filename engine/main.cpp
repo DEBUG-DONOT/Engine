@@ -1161,7 +1161,7 @@ void FXAA()
 	
 	Shader FXAAShader("./shaderLib/FXAA.vert","./shaderLib/FXAA.frag");
 	FXAAShader.Bind();
-	FXAAShader.UpLoadUniformInt("inputTexture",8);
+	FXAAShader.UpLoadUniformInt("screenTexture",8);
 	FXAAShader.UnBind();
 
 
