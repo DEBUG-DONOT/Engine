@@ -57,6 +57,9 @@
     <ClCompile Include="GeneralData.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="functionLayer\tools.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="functionLayer\Component.h">
@@ -105,6 +108,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="GeneralData.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="functionLayer\tools.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

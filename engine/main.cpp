@@ -11,6 +11,7 @@
 #include "imgui_impl_opengl3.h"
 #include"GeneralData.h"
 #include"glm/gtc/matrix_transform.hpp"
+#include"./functionLayer/tools.h"
 
 void gun()
 {
@@ -1129,6 +1130,33 @@ void FXAA()
 	
 	#pragma endregion FXAA
 	
+	#pragma region Bloom
+	//Bloom
+	GLuint bloomFBO,bloomTexture;
+	glGenFramebuffers(1,&bloomFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER,bloomFBO);
+	glGenTextures(1,&bloomTexture);
+	glBindTexture(GL_TEXTURE_2D,bloomTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, GeneralData::width, GeneralData::height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	//使用使用GL_LINEAR过滤模式，确保硬件插值符合感知混合：
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//考虑超出图像范围的处理
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bloomTexture, 0);
+
+	GLuint bloomBlurFBO,bloomBlurTexture;
+	glGenFramebuffers(1,&bloomBlurFBO);
+	glGenTextures(1,&bloomBlurTexture);
+	glBindFramebuffer(GL_FRAMEBUFFER,bloomBlurFBO);
+	glBindTexture(GL_TEXTURE_2D,bloomBlurTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, GeneralData::width, GeneralData::height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	//使用使用GL_LINEAR过滤模式，确保硬件插值符合感知混合：
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bloomBlurTexture, 0);
+	#pragma endregion Bloom
 	
 	
 	//设置shadow
@@ -1162,13 +1190,23 @@ void FXAA()
 	Shader FXAAShader("./shaderLib/FXAA.vert","./shaderLib/FXAA.frag");
 	FXAAShader.Bind();
 	FXAAShader.UpLoadUniformInt("screenTexture",8);
+	FXAAShader.UpLoadUniformInt("bloomBlurTexture",9);	
 	FXAAShader.UnBind();
 
+	Shader BloomShader("./shaderLib/Bloom.vert","./shaderLib/Bloom.frag");
+	BloomShader.Bind();
+	BloomShader.UpLoadUniformInt("screenTexture",8);
+	BloomShader.UnBind();
 
+	Shader BloomBlurShader("./shaderLib/BloomBlur.vert","./shaderLib/BloomBlur.frag");
+	BloomBlurShader.Bind();
+	BloomBlurShader.UpLoadUniformInt("bloomTexture",9);
+	BloomBlurShader.UnBind();
 	//render loop
 	bool testQuad = false;
 
 	int usingSSAO=1;
+	vector<float> bloomWeights=Tools::GenGussianBlurWeight(2,1.5);
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
@@ -1255,7 +1293,8 @@ void FXAA()
 
 				// 在循环内检测按键
 				int currentSpaceState = glfwGetKey(window, GLFW_KEY_SPACE);
-				if (currentSpaceState == GLFW_PRESS && prevSpaceState == GLFW_RELEASE) {
+				if (currentSpaceState == GLFW_PRESS && prevSpaceState == GLFW_RELEASE) 
+				{
 				    usingSSAO ^= 1; // 使用位运算切换 0/1 状态
 				    // 或者 usingSSAO = 1 - usingSSAO; // 更直观的写法
 				}
@@ -1291,16 +1330,37 @@ void FXAA()
 				glBindFramebuffer(GL_FRAMEBUFFER,0);
 		}
 		//Post Processing 
+		//Bloom
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER,bloomFBO);
+			glDisable(GL_DEPTH_TEST);
+			glClear(GL_COLOR_BUFFER_BIT);
+			BloomShader.Bind();
+			glActiveTexture(GL_TEXTURE8);
+			glBindTexture(GL_TEXTURE_2D,FXAATexture);
+			quad.Draw(BloomShader);//已经在shader中获取了亮度高于0.9的部分
+			//高斯模糊
+			glBindFramebuffer(GL_FRAMEBUFFER,bloomBlurFBO);
+			glClear(GL_COLOR_BUFFER_BIT);
+			BloomBlurShader.Bind();
+			glActiveTexture(GL_TEXTURE9);
+			glBindTexture(GL_TEXTURE_2D,bloomTexture);
+			BloomBlurShader.UpLoadUniformFloatArray
+			("weight",bloomWeights.data(),bloomWeights.size());
+			quad.Draw(BloomBlurShader);
+			glBindFramebuffer(GL_FRAMEBUFFER,0);
+		}
 		//FXAA
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER,0);
 			glDisable(GL_DEPTH_TEST);
 			glClear(GL_COLOR_BUFFER_BIT);
-			FXAAShader.Bind();
+			FXAAShader.Bind();//实现FXAA
 			glActiveTexture(GL_TEXTURE8);
 			glBindTexture(GL_TEXTURE_2D,FXAATexture);
+			glActiveTexture(GL_TEXTURE9);
+			glBindTexture(GL_TEXTURE_2D,bloomBlurTexture);
 			quad.Draw(FXAAShader);
-
 		}
 		glfwSwapBuffers(window);
 	}

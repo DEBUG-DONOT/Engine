@@ -135,6 +135,7 @@
     <ClCompile Include="functionLayer\Light.cpp" />
     <ClCompile Include="functionLayer\MeshComponent.cpp" />
     <ClCompile Include="functionLayer\Shadow.cpp" />
+    <ClCompile Include="functionLayer\tools.cpp" />
     <ClCompile Include="GeneralData.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ResourceLayer\mesh.cpp" />
@@ -153,6 +154,7 @@
     <ClInclude Include="functionLayer\MeshComponent.h" />
     <ClInclude Include="functionLayer\Render.h" />
     <ClInclude Include="functionLayer\Shadow.h" />
+    <ClInclude Include="functionLayer\tools.h" />
     <ClInclude Include="GeneralData.h" />
     <ClInclude Include="ResourceLayer\mesh.h" />
     <ClInclude Include="ResourceLayer\model.h" />

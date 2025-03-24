@@ -8,7 +8,9 @@
 - [x] 实现defered shading
 - [ ] 带IBL的PBR
 - [x] SSAO
-- [ ] FXAA
+- [x] FXAA
+- [ ] 使用compute Shader进行cluster剔除
+- [ ] Bloom
 
 # 结构
 
@@ -151,7 +153,11 @@ shadow+PBR 不使用SSAO：
 
 
 
+# Bloom
 
+![pcf](./engine/Resource/readmeImage/bloomfirst.png)
+
+这是4*4的bloom范围的效果，我们能看到亮边，但是和理想的bloom还是有差距
 
 
 
