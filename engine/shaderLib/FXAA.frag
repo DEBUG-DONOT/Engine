@@ -3,6 +3,7 @@ out vec4 fragColor;
 in vec2 TexCoords;
 uniform sampler2D screenTexture;
 uniform sampler2D bloomBlurTexture;
+uniform int usingSSAO;
 float rgb2luma(vec3 color)
 {
     return dot(color,vec3(0.299,0.587,0.114));//标准亮度计算
@@ -205,7 +206,11 @@ void main()
     }
 
     // Read the color at the new UV coordinates, and use it.
+
     vec3 finalColor = texture(screenTexture,finalUv).rgb;
     vec3 bloomColor = texture(bloomBlurTexture,TexCoords).rgb;
+    if(usingSSAO==1)
     fragColor = vec4(finalColor+bloomColor,1.0);
+    else 
+    fragColor = vec4(finalColor,1.0);
 }

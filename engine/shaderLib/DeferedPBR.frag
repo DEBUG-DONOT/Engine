@@ -167,8 +167,9 @@ void main()
 	//ambient
 	vec3 ambient=albedo*0.03;
 	color+=ambient;
-	//gamma correction
+	//Tone Mapping
 	color=color/(color+vec3(1.0));
+	//gamma correction
 	color= pow(color,vec3(1.0/2.2));
 	FragColor=vec4(color,1.0);
 	//FragColor=vec4(1.0,0.5,0.5,1.0);

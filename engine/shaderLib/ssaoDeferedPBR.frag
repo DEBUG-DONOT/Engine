@@ -1,5 +1,6 @@
 #version 460 core
-out vec4 FragColor;
+layout(location=0) out vec4 FragColor;
+layout(location=1) out vec3 pbrColor;
 in vec2 TexCoords;
 uniform sampler2D texture1;
 uniform sampler2D texture2;
@@ -13,7 +14,7 @@ uniform vec3 lightColor;
 uniform vec3 lightPosition;
 uniform vec3 eyePosition;
 uniform mat4 lightSpaceMatrix;
-uniform int usingSSAO;
+//uniform int usingSSAO;
 
 float CalcuShadowFactor(vec4 lightSpacePos)//lightSpacePos是从光源视角下的片元位置
 {
@@ -119,7 +120,8 @@ float Geometry(vec3 n,vec3 v,vec3 l,float roughness)
 	return GSub(ndotv,k)*GSub(ndotl,k);
 }
 
-
+//实际上就是普通的PBR
+//可以使用MRT存储一个没有进行gamma correction的颜色
 
 void main()
 {
@@ -177,13 +179,14 @@ void main()
 	color*=CalcuShadowFactor(lightSpacePos);
 	
 	//ambient
-	if(usingSSAO==0)
-	{
-		ao=1.0;
-	}
+	// if(usingSSAO==0)
+	// {
+	// 	ao=1.0;
+	// }
 	//else ao=texture(aoMap,TexCoords).r;
 	vec3 ambient=albedo*0.03*ao;
 	color+=ambient;
+	pbrColor=color;
 	//gamma correction
 	color=color/(color+vec3(1.0));
 	//转换为sRGB

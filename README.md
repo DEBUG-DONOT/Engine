@@ -155,9 +155,33 @@ shadow+PBR 不使用SSAO：
 
 # Bloom
 
-![pcf](./engine/Resource/readmeImage/bloomfirst.png)
+bloom主要还是应用在光源上。
 
-这是4*4的bloom范围的效果，我们能看到亮边，但是和理想的bloom还是有差距
+我们先实验取得场景中的高亮部分并进行模糊的效果。
+
+我们调整了场景，让场景中的人物模型亮度高而背景球的亮度低。
+
+![pcf](./engine/Resource/readmeImage/bloomScene.png)
+
+我们可以使用RenderDoc查看中间结果。
+
+![pcf](./engine/Resource/readmeImage/bloomMIddle.png)
+
+我们通过RenderDoc查看中间的纹理，可以看到在场景中高亮的部分只有人物。
+
+我们对提取出高亮的纹理进行模糊。
+
+![pcf](./engine/Resource/readmeImage/bloomHight.png)
+
+我们可以看到得到了类似泛光的效果，但是这里我们还是采用直接采样的方式，效果并不好。
+
+最后我们将这样结果叠加到原来的纹理上。
+
+![pcf](./engine/Resource/readmeImage/bloomON.png)
+
+我们看到的是这样的效果，接下来我们只需要将这样的结果应用在光源上就好。
+
+
 
 
 

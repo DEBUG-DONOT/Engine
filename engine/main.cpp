@@ -988,12 +988,16 @@ void FXAA()
 	Quad quad;//第二个pass用于渲染的quad
 	Model model;model.loadModel("./Resource/shenhe/shenhe.pmx");
 	Sphere sp;
+	Box box;
 	//模型modle matrix
 	glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(0, -2, 20));
 	modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5, 0.5, 0.5));
 
 	glm::mat4 modelMatrix2 = glm::scale(glm::mat4(1.0), glm::vec3(10, 10, 0.5));
 	modelMatrix2 = glm::translate(modelMatrix2, glm::vec3(3, -3, -3));
+
+	glm::mat4 modelMatrix3 = glm::scale(glm::mat4(1.0), glm::vec3(5, 5, 5 ));
+	modelMatrix3 = glm::translate(modelMatrix2, glm::vec3(1, 0.5, 3));
 	//设置G-Buffer
 	#pragma region G-Buffer
 	GLuint gBuffer,gPosition,gNormal,gAlbedoSpec,gDepth;
@@ -1117,7 +1121,7 @@ void FXAA()
 
 	#pragma region FXAA
 	//FXAA
-	GLuint FXAAFBO,FXAATexture;
+	GLuint FXAAFBO,FXAATexture,pbrColorBuffer;
 	glGenFramebuffers(1,&FXAAFBO);
 	glBindFramebuffer(GL_FRAMEBUFFER,FXAAFBO);
 	glGenTextures(1,&FXAATexture);
@@ -1127,6 +1131,16 @@ void FXAA()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, FXAATexture, 0);
+	
+	glGenTextures(1,&pbrColorBuffer);
+	glBindTexture(GL_TEXTURE_2D,pbrColorBuffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, GeneralData::width, GeneralData::height, 
+		0, GL_RGBA, GL_FLOAT, NULL);//HDR，存储线性空间的颜色，opengl不会进行自动的srgb转换
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT1,GL_TEXTURE_2D,pbrColorBuffer,0);
+	GLuint attachments_1[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+	glDrawBuffers(2, attachments_1);
 	
 	#pragma endregion FXAA
 	
@@ -1206,7 +1220,9 @@ void FXAA()
 	bool testQuad = false;
 
 	int usingSSAO=1;
-	vector<float> bloomWeights=Tools::GenGussianBlurWeight(2,1.5);
+	int radius=15;
+	float sigma=radius/1.5;
+	vector<float> bloomWeights=Tools::GenGussianBlurWeight(radius,sigma);
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
@@ -1221,6 +1237,8 @@ void FXAA()
 			model.DrawPBR(shadowShader);
 			shadowShader.UpLoadUniformMat4("model", modelMatrix2);
 			sp.DrawPBR(shadowShader);
+			shadowShader.UpLoadUniformMat4("model",modelMatrix3);
+			box.Draw(shadowShader);
 		}
 		
 		{
@@ -1235,7 +1253,7 @@ void FXAA()
 			gBufferShader.UpLoadUniformMat4("model", modelMatrix);
 			gBufferShader.UpLoadUniformFloat("metallic", 0.0);
 			gBufferShader.UpLoadUniformFloat("roughness", 0.0);
-			gBufferShader.UpLoadUniformFloat3("albedo", glm::vec3(100, 50, 5));
+			gBufferShader.UpLoadUniformFloat3("albedo", glm::vec3(100, 5, 5));
 			//for ssao depth
 			gBufferShader.UpLoadUniformFloat("NEAR", GeneralData::near);
 			gBufferShader.UpLoadUniformFloat("FAR", GeneralData::far);
@@ -1244,8 +1262,13 @@ void FXAA()
 			camera.SetModel(modelMatrix2);
 			gBufferShader.UpLoadUniformMat4("model", modelMatrix2);
 			gBufferShader.UpLoadUniformMat4("MVP",camera.GetMVP());
-			gBufferShader.UpLoadUniformFloat3("albedo", glm::vec3(50,50, 50));
+			gBufferShader.UpLoadUniformFloat3("albedo", glm::vec3(5,5, 5));
 			sp.DrawPBR(gBufferShader);
+			camera.SetModel(modelMatrix3);
+			gBufferShader.UpLoadUniformMat4("model", modelMatrix3);
+			gBufferShader.UpLoadUniformMat4("MVP",camera.GetMVP());
+			gBufferShader.UpLoadUniformFloat3("albedo", glm::vec3(200,5,5));
+			box.Draw(gBufferShader);
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 		//ssao
@@ -1288,17 +1311,7 @@ void FXAA()
 			glDisable(GL_DEPTH_TEST);
 			glClearColor(0.2f, 0.3f, 0.5f, 1.0);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-				// 在循环外定义静态变量跟踪上一帧空格键状态
-				static int prevSpaceState = GLFW_RELEASE;
 
-				// 在循环内检测按键
-				int currentSpaceState = glfwGetKey(window, GLFW_KEY_SPACE);
-				if (currentSpaceState == GLFW_PRESS && prevSpaceState == GLFW_RELEASE) 
-				{
-				    usingSSAO ^= 1; // 使用位运算切换 0/1 状态
-				    // 或者 usingSSAO = 1 - usingSSAO; // 更直观的写法
-				}
-				prevSpaceState = currentSpaceState; // 更新状态
 				quadDeferedPBR.Bind();
 				glActiveTexture(GL_TEXTURE0);//在绑定纹理之前先激活纹理单元 纹理单位就是GL_TEXTUREx这样的
 				glBindTexture(GL_TEXTURE_2D, gPosition);
@@ -1325,7 +1338,7 @@ void FXAA()
 				quadDeferedPBR.UpLoadUniformFloat3("lightPosition", light.GetPos());
 				quadDeferedPBR.UpLoadUniformFloat3("eyePosition", camera.GetPosition());
 				quadDeferedPBR.UpLoadUniformMat4("lightSpaceMatrix", lightSpaceMatrix);
-				quadDeferedPBR.UpLoadUniformInt("usingSSAO",usingSSAO);
+				//quadDeferedPBR.UpLoadUniformInt("usingSSAO",usingSSAO);
 				quad.Draw(quadDeferedPBR);
 				glBindFramebuffer(GL_FRAMEBUFFER,0);
 		}
@@ -1337,7 +1350,7 @@ void FXAA()
 			glClear(GL_COLOR_BUFFER_BIT);
 			BloomShader.Bind();
 			glActiveTexture(GL_TEXTURE8);
-			glBindTexture(GL_TEXTURE_2D,FXAATexture);
+			glBindTexture(GL_TEXTURE_2D,pbrColorBuffer);
 			quad.Draw(BloomShader);//已经在shader中获取了亮度高于0.9的部分
 			//高斯模糊
 			glBindFramebuffer(GL_FRAMEBUFFER,bloomBlurFBO);
@@ -1349,9 +1362,22 @@ void FXAA()
 			("weight",bloomWeights.data(),bloomWeights.size());
 			quad.Draw(BloomBlurShader);
 			glBindFramebuffer(GL_FRAMEBUFFER,0);
+			//glBindFramebuffer(GL_FRAMEBUFFER,FXAAFBO);
+			//glClear(GL_COLOR_BUFFER_BIT);
+			//glDisable(GL_DEPTH_TEST);
 		}
 		//FXAA
 		{
+			// 在循环外定义静态变量跟踪上一帧空格键状态
+			static int prevSpaceState = GLFW_RELEASE;
+			// 在循环内检测按键
+			int currentSpaceState = glfwGetKey(window, GLFW_KEY_SPACE);
+			if (currentSpaceState == GLFW_PRESS && prevSpaceState == GLFW_RELEASE) 
+			{
+				usingSSAO ^= 1; // 使用位运算切换 0/1 状态
+				// 或者 usingSSAO = 1 - usingSSAO; // 更直观的写法
+			}
+			prevSpaceState = currentSpaceState; // 更新状态
 			glBindFramebuffer(GL_FRAMEBUFFER,0);
 			glDisable(GL_DEPTH_TEST);
 			glClear(GL_COLOR_BUFFER_BIT);
@@ -1360,6 +1386,7 @@ void FXAA()
 			glBindTexture(GL_TEXTURE_2D,FXAATexture);
 			glActiveTexture(GL_TEXTURE9);
 			glBindTexture(GL_TEXTURE_2D,bloomBlurTexture);
+			FXAAShader.UpLoadUniformInt("usingSSAO",usingSSAO);
 			quad.Draw(FXAAShader);
 		}
 		glfwSwapBuffers(window);
