@@ -1170,6 +1170,17 @@ void FXAA()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bloomBlurTexture, 0);
+	
+	GLuint bloomBlurFBO1,bloomBlurTexture1;
+	glGenFramebuffers(1,&bloomBlurFBO1);
+	glGenTextures(1,&bloomBlurTexture1);
+	glBindFramebuffer(GL_FRAMEBUFFER,bloomBlurFBO1);
+	glBindTexture(GL_TEXTURE_2D,bloomBlurTexture1);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, GeneralData::width, GeneralData::height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	//使用使用GL_LINEAR过滤模式，确保硬件插值符合感知混合：
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bloomBlurTexture1, 0);
 	#pragma endregion Bloom
 	
 	
@@ -1358,13 +1369,26 @@ void FXAA()
 			BloomBlurShader.Bind();
 			glActiveTexture(GL_TEXTURE9);
 			glBindTexture(GL_TEXTURE_2D,bloomTexture);
-			BloomBlurShader.UpLoadUniformFloatArray
-			("weight",bloomWeights.data(),bloomWeights.size());
+			// BloomBlurShader.UpLoadUniformFloatArray
+			// ("weight",bloomWeights.data(),bloomWeights.size());
+			BloomBlurShader.UpLoadUniformInt("vertical",1);
 			quad.Draw(BloomBlurShader);
 			glBindFramebuffer(GL_FRAMEBUFFER,0);
 			//glBindFramebuffer(GL_FRAMEBUFFER,FXAAFBO);
 			//glClear(GL_COLOR_BUFFER_BIT);
 			//glDisable(GL_DEPTH_TEST);
+			//优化
+			glBindFramebuffer(GL_FRAMEBUFFER,bloomBlurFBO1);
+			glClear(GL_COLOR_BUFFER_BIT);
+			BloomBlurShader.Bind();
+			glActiveTexture(GL_TEXTURE9);
+			glBindTexture(GL_TEXTURE_2D,bloomBlurTexture);
+			// BloomBlurShader.UpLoadUniformFloatArray
+			// ("weight",bloomWeights.data(),bloomWeights.size());
+			BloomBlurShader.UpLoadUniformInt("vertical",0);
+			quad.Draw(BloomBlurShader);
+			glBindFramebuffer(GL_FRAMEBUFFER,0);
+
 		}
 		//FXAA
 		{
@@ -1385,7 +1409,7 @@ void FXAA()
 			glActiveTexture(GL_TEXTURE8);
 			glBindTexture(GL_TEXTURE_2D,FXAATexture);
 			glActiveTexture(GL_TEXTURE9);
-			glBindTexture(GL_TEXTURE_2D,bloomBlurTexture);
+			glBindTexture(GL_TEXTURE_2D,bloomBlurTexture1);
 			FXAAShader.UpLoadUniformInt("usingSSAO",usingSSAO);
 			quad.Draw(FXAAShader);
 		}
