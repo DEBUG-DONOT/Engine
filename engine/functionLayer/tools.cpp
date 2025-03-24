@@ -33,3 +33,35 @@ std::vector<float> Tools::GenGussianBlurWeight(int radius,float sigma)
     return kernel;
 
 }
+
+std::vector<float> Tools::  GenGussianBlurWeightOneDimension(int radius,float sigma)
+{
+    const int size = 2 * radius + 1;
+    std::vector<float> weights(size);
+
+    if (sigma <= 0.0f) {
+        // 处理 sigma 无效的情况，返回中心为1的脉冲响应
+        std::fill(weights.begin(), weights.end(), 0.0f);
+        weights[radius] = 1.0f;
+        return weights;
+    }
+
+    const float twoSigmaSq = 2.0f * sigma * sigma;
+    float sum = 0.0f;
+
+    // 计算未归一化的高斯权重
+    for (int i = 0; i < size; ++i) {
+        const int x = i - radius;
+        weights[i] = std::exp(-static_cast<float>(x * x) / twoSigmaSq);
+        sum += weights[i];
+    }
+
+    // 归一化处理
+    const float invSum = 1.0f / sum;
+    for (auto& w : weights) {
+        w *= invSum;
+    }
+
+    return weights;
+}
+

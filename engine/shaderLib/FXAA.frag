@@ -209,6 +209,7 @@ void main()
 
     vec3 finalColor = texture(screenTexture,finalUv).rgb;
     vec3 bloomColor = texture(bloomBlurTexture,TexCoords).rgb;
+    bloomColor=bloomColor/(vec3(1.0,1.0 ,1.0 )+bloomColor);
     if(usingSSAO==1)
     fragColor = vec4(finalColor+bloomColor,1.0);
     else 

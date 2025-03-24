@@ -181,7 +181,24 @@ bloom主要还是应用在光源上。
 
 我们看到的是这样的效果，接下来我们只需要将这样的结果应用在光源上就好。
 
+## 高斯模糊优化
 
+我们使用2pass的高斯模糊算法来进行模糊。
+
+![pcf](./engine/Resource/readmeImage/bloomGuOri.png)
+
+![pcf](./engine/Resource/readmeImage/bloomGuBlur1.png)
+
+![pcf](./engine/Resource/readmeImage/bloomGuBlur2.png)
+
+结果如下：
+
+![pcf](./engine/Resource/readmeImage/bloomGuRes.png)
+
+修正了texture的纹理之后，我们得到这样的效果：
+![pcf](./engine/Resource/readmeImage/bloomGuRes1.png)
+
+这是我们把镜头拉的很远的时候得到的效果。
 
 
 

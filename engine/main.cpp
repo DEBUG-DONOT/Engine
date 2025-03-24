@@ -1151,7 +1151,8 @@ void FXAA()
 	glBindFramebuffer(GL_FRAMEBUFFER,bloomFBO);
 	glGenTextures(1,&bloomTexture);
 	glBindTexture(GL_TEXTURE_2D,bloomTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, GeneralData::width, GeneralData::height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, GeneralData::width, GeneralData::height, 
+		0, GL_RGBA, GL_FLOAT, NULL);//HDR，存储线性空间的颜色，opengl不会进行自动的srgb转换
 	//使用使用GL_LINEAR过滤模式，确保硬件插值符合感知混合：
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -1165,7 +1166,8 @@ void FXAA()
 	glGenTextures(1,&bloomBlurTexture);
 	glBindFramebuffer(GL_FRAMEBUFFER,bloomBlurFBO);
 	glBindTexture(GL_TEXTURE_2D,bloomBlurTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, GeneralData::width, GeneralData::height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, GeneralData::width, GeneralData::height, 
+		0, GL_RGBA, GL_FLOAT, NULL);//HDR，存储线性空间的颜色，opengl不会进行自动的srgb转换
 	//使用使用GL_LINEAR过滤模式，确保硬件插值符合感知混合：
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -1231,9 +1233,9 @@ void FXAA()
 	bool testQuad = false;
 
 	int usingSSAO=1;
-	int radius=15;
+	int radius=32;
 	float sigma=radius/1.5;
-	vector<float> bloomWeights=Tools::GenGussianBlurWeight(radius,sigma);
+	vector<float> bloomWeights=Tools::GenGussianBlurWeightOneDimension(radius,sigma);
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
@@ -1369,8 +1371,8 @@ void FXAA()
 			BloomBlurShader.Bind();
 			glActiveTexture(GL_TEXTURE9);
 			glBindTexture(GL_TEXTURE_2D,bloomTexture);
-			// BloomBlurShader.UpLoadUniformFloatArray
-			// ("weight",bloomWeights.data(),bloomWeights.size());
+			 BloomBlurShader.UpLoadUniformFloatArray
+			("weight",bloomWeights.data(),bloomWeights.size());
 			BloomBlurShader.UpLoadUniformInt("vertical",1);
 			quad.Draw(BloomBlurShader);
 			glBindFramebuffer(GL_FRAMEBUFFER,0);
@@ -1383,8 +1385,8 @@ void FXAA()
 			BloomBlurShader.Bind();
 			glActiveTexture(GL_TEXTURE9);
 			glBindTexture(GL_TEXTURE_2D,bloomBlurTexture);
-			// BloomBlurShader.UpLoadUniformFloatArray
-			// ("weight",bloomWeights.data(),bloomWeights.size());
+			BloomBlurShader.UpLoadUniformFloatArray
+			("weight",bloomWeights.data(),bloomWeights.size());
 			BloomBlurShader.UpLoadUniformInt("vertical",0);
 			quad.Draw(BloomBlurShader);
 			glBindFramebuffer(GL_FRAMEBUFFER,0);
