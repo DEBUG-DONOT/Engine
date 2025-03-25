@@ -10,7 +10,10 @@
 - [x] SSAO
 - [x] FXAA
 - [ ] 使用compute Shader进行cluster剔除
-- [ ] Bloom
+- [x] Bloom
+- [ ] 全局光照，使用康奈尔box验证效果
+  - [ ] 
+
 
 # 结构
 
