@@ -1244,7 +1244,10 @@ void FXAA()
 			glEnable(GL_DEPTH_TEST);
 			shadowShader.Bind();
 			glBindFramebuffer(GL_FRAMEBUFFER, shadow.shadowMapFBO);
+			glClearDepth(1.0f); // 设置清除值为远平面（通常为1.0）
 			glClear(GL_DEPTH_BUFFER_BIT);
+			glDepthMask(GL_TRUE);  // 强制启用深度写入
+			glDepthFunc(GL_LESS);
 			shadowShader.UpLoadUniformMat4("lightSpaceMatrix", lightSpaceMatrix);	
 			shadowShader.UpLoadUniformMat4("model", modelMatrix);	
 			model.DrawPBR(shadowShader);
@@ -1252,12 +1255,50 @@ void FXAA()
 			sp.DrawPBR(shadowShader);
 			shadowShader.UpLoadUniformMat4("model",modelMatrix3);
 			box.Draw(shadowShader);
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
+		//pre-z
 		
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+			glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+			glEnable(GL_DEPTH_TEST);
+			glDepthMask(GL_TRUE); // 强制启用深度写入
+			glDepthFunc(GL_LESS); // 默认深度比较函数
+			glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+			gBufferShader.Bind();
+			camera.SetModel(modelMatrix);
+			gBufferShader.UpLoadUniformMat4("MVP",camera.GetMVP());
+			gBufferShader.UpLoadUniformMat4("model", modelMatrix);
+			gBufferShader.UpLoadUniformFloat("metallic", 0.0);
+			gBufferShader.UpLoadUniformFloat("roughness", 0.0);
+			gBufferShader.UpLoadUniformFloat3("albedo", glm::vec3(100, 5, 5));
+			//for ssao depth
+			gBufferShader.UpLoadUniformFloat("NEAR", GeneralData::near);
+			gBufferShader.UpLoadUniformFloat("FAR", GeneralData::far);
+			model.DrawPBR(gBufferShader);
+			camera.SetModel(modelMatrix2);
+			gBufferShader.UpLoadUniformMat4("model", modelMatrix2);
+			gBufferShader.UpLoadUniformMat4("MVP",camera.GetMVP());
+			gBufferShader.UpLoadUniformFloat3("albedo", glm::vec3(5,5, 5));
+			sp.DrawPBR(gBufferShader);
+			camera.SetModel(modelMatrix3);
+			gBufferShader.UpLoadUniformMat4("model", modelMatrix3);
+			gBufferShader.UpLoadUniformMat4("MVP",camera.GetMVP());
+			gBufferShader.UpLoadUniformFloat3("albedo", glm::vec3(200,5,5));
+			box.Draw(gBufferShader);
+			glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+			glDepthMask(GL_FALSE);
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			
+		}
+
 		{
 			//G-Buffer pass
 			glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 			glEnable(GL_DEPTH_TEST);
+			//glDepthMask(GL_FALSE);//关闭深度写入
+			glDepthFunc(GL_EQUAL); // 默认深度比较函数
 			glClearColor(0.2f, 0.3f, 0.5f, 1.0);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			gBufferShader.Bind();
@@ -1282,6 +1323,7 @@ void FXAA()
 			gBufferShader.UpLoadUniformMat4("MVP",camera.GetMVP());
 			gBufferShader.UpLoadUniformFloat3("albedo", glm::vec3(200,5,5));
 			box.Draw(gBufferShader);
+			glDepthMask(GL_TRUE);//开始深度写入
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 		//ssao
