@@ -4,7 +4,7 @@ void FXAA();
 void GI();
 int main()
 {
-	FXAA();
+	GI();
 }
 
 

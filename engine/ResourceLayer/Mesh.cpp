@@ -9,6 +9,17 @@ Mesh::Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture
     setupMesh();
 }
 
+Mesh::Mesh(vector<Vertex> vertices, vector<unsigned int> indices, 
+    vector<Texture> textures,  MaterialPBR  material)
+{
+    this->vertices = vertices;
+    this->indices = indices;
+    this->textures = textures;
+    this->material = material;
+    NsToRoughness();
+    setupMesh();
+}
+
 void Mesh::Draw(Shader& shader)
 {
     unsigned int diffuseNr = 1;
@@ -136,4 +147,7 @@ void Mesh::setupMesh()
     glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, m_Weights));
 
     glBindVertexArray(0);
-} 
+}
+void Mesh::NsToRoughness()
+{
+}

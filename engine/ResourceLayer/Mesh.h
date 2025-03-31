@@ -27,6 +27,30 @@ struct Vertex {
 	float m_Weights[MAX_BONE_INFLUENCE];
 };
 
+struct MaterialPBR
+{
+    //所有的material 用唯一的id标识
+    unsigned int id;
+    string path;
+    bool operator==(const MaterialPBR& other) const 
+    {
+        return id == other.id;
+    }
+    //pbr部分
+    float Ns;//反射参数 控制镜面高光的锐利程度，值越大高光越集中。
+    float roughness;//粗糙度，0-1
+    float Ni;//折射率 1.0表示无折射，透明材质
+    int ill_method;//光照模型
+    //1 环境光+漫反射
+    //2环境光+漫反射+高光
+    //3 反射+光线追踪
+    glm::vec3 Ka;//ambient color 材质在环境光下的颜色
+    glm::vec3 Kd;//diffuse color 材质在直接光照下的颜色
+    glm::vec3 Ks;//specular color 高光颜色 
+    glm::vec3 Ke;//自发光颜色
+};
+
+
 struct Texture 
 {
     unsigned int id;
@@ -47,11 +71,14 @@ class Mesh
         vector<Vertex> vertices;
         vector<unsigned int> indices;
         vector<Texture> textures;
+        MaterialPBR  material;
         unsigned int VAO;
         /*  函数  */
         //容器内的类必须有默认构造函数
         Mesh() = default;
         Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures);
+        Mesh(vector<Vertex> vertices, vector<unsigned int> indices,
+             vector<Texture> textures, MaterialPBR material);
         
         void Draw(Shader& shader);
         void Draw(GLuint shader);
@@ -61,6 +88,7 @@ class Mesh
         unsigned int VBO, EBO;
         /*  函数  */
         void setupMesh();
+        void NsToRoughness();
 };  
 
 #endif

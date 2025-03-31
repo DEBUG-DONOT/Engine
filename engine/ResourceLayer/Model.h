@@ -25,12 +25,15 @@ class Model
         void Draw(GLuint shader);
         void DrawPBR(Shader& shader);
         void loadModel(std::string path);
+        void loadModel(std::string path,bool loadMaterial);
         void checkAllTypeTexture();
 		void showAllLoadedTexture();
+        void checkMesh();
     private:
         /*  函数   */
         void processNode(aiNode *node, const aiScene *scene);
         Mesh processMesh(aiMesh *mesh, const aiScene *scene);
+        //void processMaterial_NoTexture(aiScene* scene, aiMaterial* mat, Mesh& mesh);
         vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, 
             string typeName, vector<bool> *bRepeats = nullptr);
         vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, 
@@ -41,6 +44,19 @@ class Model
         std::unordered_map<std::string,int> allTypeTexture;
 };
 
-
+class MyOBJLoader
+{
+public:
+    MyOBJLoader();
+    void loadModel(const std::string& filename);
+    void loadMaterial(const std::string& filename);
+    void draw(Shader& shader);
+    void drawPBR(Shader& shader);
+private:
+    string directory;
+    string obj_filename,mtl_filename;
+    vector<Mesh> meshes;
+    vector<MaterialPBR> materials;
+};
 
 #endif

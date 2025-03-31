@@ -47,11 +47,37 @@ void Model::loadModel(string path)
     std::string temp= path.substr(0, path.find_last_of('/'));
     this->directory = temp;
     processNode(scene->mRootNode, scene);//load model调用process node
+
+}
+
+void Model::loadModel(string path,bool loadMaterial)
+{
+    Assimp::Importer import;
+    const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | 
+        aiProcess_FlipUVs | aiProcess_CalcTangentSpace);    
+
+    if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) 
+    {
+        cout << "ERROR::ASSIMP::" << import.GetErrorString() << endl;
+        return;
+    }
+    std::string temp= path.substr(0, path.find_last_of('/'));
+    this->directory = temp;
+    processNode(scene->mRootNode, scene);//load model调用process node
+    if(loadMaterial)
+    {
+
+    }
+    
 }
 
 void Model::checkAllTypeTexture()
 {
     std::cout << "*********check all type texture************" << std::endl;
+    if(allTypeTexture.size() == 0)
+        std::cout << "No texture loaded!" << std::endl;
+    else
+        std::cout << "All texture type loaded!" << std::endl;
     for (auto it = allTypeTexture.begin(); it != allTypeTexture.end(); it++)
         cout << (*it).first<<" "<<(*it).second << endl;
     std::cout << "***********All texture type showed********" << std::endl;
@@ -65,6 +91,14 @@ void Model::showAllLoadedTexture()
         std::cout << curr.path << " " << curr.type << std::endl;
     }
     std::cout << "-----------------end---------------------" << std::endl;
+}
+
+void Model::checkMesh()
+{
+    if(this->meshes.empty())
+        std::cout << "No mesh loaded!" << std::endl;
+    else
+        std::cout << "All mesh loaded!" <<"Mesh Num:"<< meshes.size()<< std::endl;
 }
 
 void Model::processNode(aiNode *node, const aiScene *scene)
@@ -234,8 +268,49 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
         if (otherMaps.size() > 0)
             std::cout << "[Model::processMesh] Unknown Map: " << j << std::endl;
     }
+    //mtl
+    //对每一个mesh能够取得对应的材质
+    std::cout<< "material name: " << scene->mMaterials[mesh->mMaterialIndex]->GetName().C_Str() << std::endl;
+    MaterialPBR m_MaterialPBR;
+    //vector<MaterialPBR> m_materials;
+    auto* mat = scene->mMaterials[mesh->mMaterialIndex];
+    aiColor3D tempColor;
+    if(mat->Get(AI_MATKEY_SHININESS, m_MaterialPBR.Ns) == aiReturn_SUCCESS)
+    {
+        std::cout << "Ns: " << m_MaterialPBR.Ns << std::endl;
+    }
+    if (mat->Get(AI_MATKEY_REFLECTIVITY, m_MaterialPBR.Ni) == aiReturn_SUCCESS)
+    {
+        std::cout << "Ni: " << m_MaterialPBR.Ni << std::endl;
+    }
+    if (mat->Get(AI_MATKEY_REFRACTI, m_MaterialPBR.ill_method) == aiReturn_SUCCESS)
+    {
+        std::cout << "ill_method: " << m_MaterialPBR.ill_method << std::endl;
+    }
+    if (mat->Get(AI_MATKEY_COLOR_DIFFUSE, tempColor) == aiReturn_SUCCESS)
+    {
+        m_MaterialPBR.Kd = glm::vec3(tempColor.r, tempColor.g, tempColor.b);
+        std::cout << "Kd: " << m_MaterialPBR.Kd.x << " " << m_MaterialPBR.Kd.y << " " << m_MaterialPBR.Kd.z << std::endl;
+    }
+    if (mat->Get(AI_MATKEY_COLOR_AMBIENT,tempColor ) == aiReturn_SUCCESS)
+    {
+        m_MaterialPBR.Ka= glm::vec3(tempColor.r, tempColor.g, tempColor.b);
+        std::cout << "Ka: " << m_MaterialPBR.Ka.x << " " << m_MaterialPBR.Ka.y << " " << m_MaterialPBR.Ka.z << std::endl;
+    }
+    if (mat->Get(AI_MATKEY_COLOR_SPECULAR, tempColor) == aiReturn_SUCCESS)
+    {
+        m_MaterialPBR.Ks= glm::vec3(tempColor.r, tempColor.g, tempColor.b);
+        std::cout << "Ks: " << m_MaterialPBR.Ks.x << " " << m_MaterialPBR.Ks.y << " " << m_MaterialPBR.Ks.z << std::endl;
+    }
+    if (mat->Get(AI_MATKEY_COLOR_EMISSIVE, tempColor) == aiReturn_SUCCESS)
+    {
+        m_MaterialPBR.Ke= glm::vec3(tempColor.r, tempColor.g, tempColor.b);
+        std::cout << "Ke: " << m_MaterialPBR.Ke.x << " " << m_MaterialPBR.Ke.y << " " << m_MaterialPBR.Ke.z << std::endl;
+    }
+    //m_materials.push_back(m_MaterialPBR);
     // return a mesh object created from the extracted mesh data
-    return Mesh(vertices, indices, textures);
+    return Mesh(vertices, indices, textures, m_MaterialPBR);
+    //return Mesh(vertices, indices, textures);
 }
 
 vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type, 
@@ -418,5 +493,26 @@ unsigned int Model::TextureEembed(const aiTexture* aitex)
     return textureID;
 }
 
+MyOBJLoader::MyOBJLoader()
+{
+    //分别读取，然后
+}
 
+void MyOBJLoader::loadModel(const std::string &filename)
+{
+    this->obj_filename=filename;
 
+}
+
+void MyOBJLoader::loadMaterial(const std::string &filename)
+{
+    this->mtl_filename=filename;
+}
+
+void MyOBJLoader::draw(Shader &shader)
+{
+}
+
+void MyOBJLoader::drawPBR(Shader &shader)
+{
+}
