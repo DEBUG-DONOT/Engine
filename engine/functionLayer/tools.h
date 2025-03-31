@@ -1,5 +1,6 @@
+#pragma once
 #include<vector>
-class Tools
+class m_Tools
 {
     public:
     static std::vector<float> GenGussianBlurWeight(int radius,float sigma);

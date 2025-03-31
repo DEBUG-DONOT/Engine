@@ -1,6 +1,6 @@
 #include"tools.h"
 #include<cmath>
-std::vector<float> Tools::GenGussianBlurWeight(int radius,float sigma)
+std::vector<float> m_Tools::GenGussianBlurWeight(int radius,float sigma)
 {
     double M_PI = 3.14159265358979323846;
     int size = 2 * radius + 1;
@@ -34,7 +34,7 @@ std::vector<float> Tools::GenGussianBlurWeight(int radius,float sigma)
 
 }
 
-std::vector<float> Tools::  GenGussianBlurWeightOneDimension(int radius,float sigma)
+std::vector<float> m_Tools::  GenGussianBlurWeightOneDimension(int radius,float sigma)
 {
     const int size = 2 * radius + 1;
     std::vector<float> weights(size);
